@@ -17,7 +17,7 @@ const POS = [10, 30, 50, 70, 90];
 
 function Box({ data }) {
   return (
-    <div className={"dnode" + (data.hot ? " hot" : "")}>
+    <div className={`dg-node dg-${data.role} ${data.hot ? "hot" : ""}`}>
       {Object.entries(SIDES).map(([k, pos]) =>
         POS.map((p) => (
           <Handle key={k + p} id={k + p} type="source" position={pos}
@@ -37,7 +37,7 @@ export default function FlowTab({ catalog }) {
   const groups = diagram?.groups ?? {};
   const groupEntries = Object.entries(groups);
 
-  const initNodes = useMemo(() => nodesData.map((n) => ({ id: n.id, type: "box", position: { x: n.x, y: n.y }, data: { label: n.label, kind: n.kind } })), [nodesData]);
+  const initNodes = useMemo(() => nodesData.map((n) => ({ id: n.id, type: "box", position: { x: n.x, y: n.y }, data: { label: n.label, kind: n.kind, role: n.role } })), [nodesData]);
   const ns = useNodesState(initNodes);
   const nodes = ns[0], setNodes = ns[1], onNodesChange = ns[2];
   useEffect(() => { setNodes(initNodes); }, [initNodes, setNodes]); // Reset restores positions

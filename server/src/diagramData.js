@@ -25,7 +25,7 @@ export function buildDiagram(name = 'ciba-hitl') {
     title: d.title,
     intro: d.lede,
     groups: d.groups,
-    nodes: d.nodes.map((n) => ({ id: n.id, label: n.label, kind: n.group, x: n.x, y: n.y })),
+    nodes: d.nodes.map((n) => ({ id: n.id, label: n.label, kind: n.group, role: d.groups[n.group]?.color ?? "grey", x: n.x, y: n.y })),
     edges: d.edges.map((e) => ({ from: e.source, to: e.target, dashed: !!e.dashed })),
     steps: d.steps.map((s, i) => {
       const e = d.edges[s.edges[0]];

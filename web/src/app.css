@@ -157,10 +157,10 @@ form.stack button[type="submit"] { justify-self: start; margin-top: 4px; }
 .detail pre { margin: 4px 0 0; font-size: 11px; font-family: var(--font-mono); white-space: pre-wrap; background: var(--surface-2); padding: 6px 8px; border-radius: 6px; }
 .detail .open { color: var(--danger-text); }
 .canvas { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.dnode { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 10px 14px; min-width: 190px; min-height: 140px; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 13px; font-weight: 600; box-sizing: border-box; }
-.dnode small { display: block; font-weight: 400; color: var(--muted); font-size: 11px; margin-top: 2px; }
-.dnode.authz { border-color: var(--accent); }
-.dnode.hot { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.dg-node { min-width: 190px; min-height: 140px; justify-content: center; text-align: center; box-sizing: border-box; }
+.dg-node small { font-weight: 400; font-size: 11px; }
+
+
 .react-flow__handle { opacity: 0; width: 6px; height: 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px; max-width: 560px; }
 .chip { display: flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 12px; cursor: pointer; border: 1.5px solid var(--gc); color: var(--text); background: var(--surface); font-size: 11px; }
@@ -172,9 +172,6 @@ form.stack button[type="submit"] { justify-self: start; margin-top: 4px; }
 @media (max-width: 900px) { .steplist { display: none; } .flowwrap { height: auto; } .canvas { height: 60vh; } }
 
 /* Diagram nodes: the Ping box look (dark fills both themes, --on-box text), like AI-DEMO2's StaticFlowDiagram pingStyle. */
-.dnode { color: var(--on-box); background: var(--box-dark); }
-.dnode small { color: var(--on-box); opacity: 0.7; }
-.dnode.authz { background: var(--box-red); }
 .react-flow__background { background: var(--bg-lab); }
 .react-flow__controls button { color: var(--text); background: var(--surface); border-bottom: 1px solid var(--border); }
 .react-flow__edge-textbg { fill: var(--surface); stroke: var(--border); }
