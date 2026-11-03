@@ -28,6 +28,13 @@ export function createApp({ health = createHealth(), mode = createMode(), flow =
 
   const api = express.Router();
   api.use(express.json({ limit: '8kb' }));
+  // eslint-disable-next-line no-unused-vars
+  api.use((err, _req, res, _next) => {
+    if (err?.type === 'entity.parse.failed' || err?.type === 'entity.too.large' || err instanceof SyntaxError) {
+      return res.status(err.type === 'entity.too.large' ? 413 : 400).json({ error: 'bad_request', message: err.type === 'entity.too.large' ? 'request body over 8kb' : 'request body is not valid JSON' });
+    }
+    return res.status(400).json({ error: 'bad_request', message: 'bad request' });
+  });
   api.use('/health', health.router);
 
   api.get('/info', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...mode.info(), banner: BANNER(mode.source()), epoch: flow.state.runs.length }); });

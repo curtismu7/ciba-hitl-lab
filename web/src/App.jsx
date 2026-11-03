@@ -53,7 +53,7 @@ export default function App() {
     setBusy(false);
   }, []);
   const onApprove = useCallback(async (id) => { setBusy(true); setError(null); try { await approveCiba(id); setAnnounce("Approved. Replay the write with the identifier."); } catch (e) { setError(e.message); } setBusy(false); }, []);
-  const onDeny = useCallback(async (id) => { setBusy(true); setError(null); try { await denyCiba(id); setAnnounce("Refused. A replay with this identifier denies again."); } catch (e) { setError(e.message); } setBusy(false); }, []);
+  const onDeny = useCallback(async (id) => { setBusy(true); setError(null); try { await denyCiba(id); setAnnounce("Refused. The refusal is terminal: no replay with this identifier can ever permit."); } catch (e) { setError(e.message); } setBusy(false); }, []);
   const onReset = useCallback(async () => { await resetServer(); setRun(null); setAnnounce("Reset."); }, []);
 
   const onMode = useCallback(async (next) => {

@@ -12,8 +12,8 @@ Twenty-four steps, one story: one login, one token exchange, one approval. The t
 - **8 Write request.** The agent, not the application, decides which tool to call.
 - **9 Write tool call.** The gateway sits in front of the MCP Server and intercepts the call before it reaches the tool.
 - **10 Policy decision request.** The decision is made on who the user and agent are and which tool is called, not on token scopes alone. Authorize can plug into any gateway.
-- **11 403 with identifier.** The identifier ties the later replay (step 15) to this approval. Because Authorize starts the CIBA request, it holds the audit record. (Open: Paul has CIBA both started and completed in PAZ. The application prompt (steps 13-14) is one option; which one do we use?)
-- **12 JSON-RPC 2.0 error with identifier.** SDKs that treat a raw 403 as fatal would kill the session. A JSON-RPC error looks like an ordinary tool error, so the session survives. (Open: Exact error fields are not defined yet.)
+- **11 403 with identifier.** The identifier ties the later replay (step 15) to this approval. Because Authorize starts the CIBA request, it holds the audit record. (Open: CIBA can be both started and completed in the policy engine (PAZ). The application prompt (steps 13-14) is one option; which one do we use?)
+- **12 JSON-RPC 2.0 error with identifier.** Some agent SDKs treat a raw 403 as fatal and would kill the session. A JSON-RPC error looks like an ordinary tool error, so the session survives. (Open: Exact error fields are not defined yet.)
 - **13 Prompt for CIBA acceptance.** The agent never calls CIBA endpoints itself. It only relays the request to the application. This is the one custom behaviour the customer AI team writes. (Open: CIBA uses a magic link, so the approval channel is flexible. The application is only one option.)
 - **14 Accept / Yes.** This is the human-in-the-loop moment. Approval is recorded against the CIBA request, not trusted from the agent word.
 - **15 Replay tool call, header has identifier.** This is how the approval context gets back to Authorize across the gateway. The agent only echoes the identifier. (Open: The header name is a placeholder.)
@@ -22,7 +22,7 @@ Twenty-four steps, one story: one login, one token exchange, one approval. The t
 - **18 Tool request with OBO token.** The MCP Server sees the user in sub and the agent in act, so downstream audit shows both.
 - **19 MCP Server executes the write.** The write only happens after a human approved it.
 - **20 Resource Server result returns to MCP Server.** The result is data, not a token: nothing here widens what the agent can do next.
-- **21 Response inspected at Authorize.** Probably response inspection or audit. The policy engine sees both directions of the call. (Open: The POC diagram does not say why. Confirm with CJ.)
+- **21 Response inspected at Authorize.** Probably response inspection or audit. The policy engine sees both directions of the call. (Open: The POC diagram does not say why. Confirm with the customer team.)
 - **22 Authorized response reaches the Gateway.** The gateway relays it to the caller.
 - **23 Gateway returns the result to the Agent.** The agent sees an ordinary tool result.
 - **24 Agent shows the result in the Application.** One login, one exchange, one approval: the write happened under the user identity with the agent recorded. (Open: Does the NEXT write need approval again, or does one approval cover a time window? A policy choice in Authorize.)

@@ -76,3 +76,15 @@ test('diagram: valid diagram-studio/1, 24 steps, cast tokens all defined', async
   const titles = JSON.parse((await import('node:fs')).readFileSync(new URL('../data/scenarios.json', import.meta.url), 'utf8')).steps.map((s) => s.title);
   assert.deepEqual(d.steps.map((s) => s.title), titles);
 });
+
+test('fix-pass pins: decision record carries person+agent, OBO scope equals the FULL set, a refused record never flips to approved', async () => {
+  const f = createFlow();
+  const first = await f.writeCall();
+  assert.equal(first.decision.sub, personaOf().sub, 'the policy decision names the person, not the agent');
+  assert.equal(first.decision.act, agentOf().clientId);
+  assert.equal(first.obo.claims.scope, 'api:read api:write api:delete', 'the OBO token keeps the FULL scope set, never narrowed');
+  assert.equal(f.denyCiba(first.identifier), true);
+  assert.equal(f.approve(first.identifier), false, 'a refused CIBA record is terminal: it can never become approved');
+  const replay = await f.writeCall({ identifierHeader: first.identifier });
+  assert.equal(replay.outcome, 'hitl_required');
+});
