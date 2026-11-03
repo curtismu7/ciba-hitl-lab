@@ -1,6 +1,6 @@
 # OrbStack:  HOST_PORT=7580 docker compose up --build -d   ->  http://127.0.0.1:7580
 # The server binds 0.0.0.0 INSIDE the container (CIBA_BIND is the opt-in), but the port is published on loopback only.
-# Do not change the 127.0.0.1 below. HOST_PORT must stay in 7580-7569.
+# Do not change the 127.0.0.1 below. HOST_PORT must stay in 7580-7589.
 name: ciba-hitl-lab
 
 services:
