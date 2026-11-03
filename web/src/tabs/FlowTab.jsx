@@ -79,7 +79,7 @@ export default function FlowTab({ catalog }) {
       label: String(i + 1), labelBgPadding: [5, 3], labelBgBorderRadius: 8,
       labelStyle: { fontWeight: 700, fill: color },
       labelBgStyle: { fill: "var(--surface)", stroke: color, strokeWidth: 1.5 },
-      style: { stroke: color, strokeWidth: active ? 3.5 : 1.8, strokeDasharray: s.dashed ? "6 4" : undefined, opacity: step === -1 ? 0.9 : active ? 1 : seen ? 0.7 : 0.3 },
+      style: { stroke: s.color ? `var(--dg-${s.color})` : color, strokeWidth: active ? 3.5 : 1.8, strokeDasharray: s.dashed ? "6 4" : undefined, opacity: step === -1 ? 0.9 : active ? 1 : seen ? 0.7 : 0.3 },
       markerEnd: marker,
       zIndex: active ? 10 : 1,
     };

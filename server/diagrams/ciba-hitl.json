@@ -99,122 +99,146 @@
     {
       "source": "browser",
       "target": "app",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "app",
       "target": "iam",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "browser",
       "target": "iam",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "iam",
       "target": "app",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "agent",
       "target": "iam",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "iam",
       "target": "agent",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "agent",
       "target": "iam",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "app",
       "target": "agent",
-      "dashed": false
+      "dashed": false,
+      "color": "amber"
     },
     {
       "source": "agent",
       "target": "gw",
-      "dashed": true
+      "dashed": true,
+      "color": "amber"
     },
     {
       "source": "gw",
       "target": "authz",
-      "dashed": false
+      "dashed": false,
+      "color": "amber"
     },
     {
       "source": "authz",
       "target": "gw",
-      "dashed": false
+      "dashed": false,
+      "color": "red"
     },
     {
       "source": "gw",
       "target": "agent",
-      "dashed": true
+      "dashed": true,
+      "color": "red"
     },
     {
       "source": "agent",
       "target": "app",
-      "dashed": false
+      "dashed": false,
+      "color": "green"
     },
     {
       "source": "app",
       "target": "agent",
-      "dashed": false
+      "dashed": false,
+      "color": "green"
     },
     {
       "source": "agent",
       "target": "gw",
-      "dashed": true
+      "dashed": true,
+      "color": "blue"
     },
     {
       "source": "gw",
       "target": "authz",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "authz",
       "target": "gw",
-      "dashed": false
+      "dashed": false,
+      "color": "blue"
     },
     {
       "source": "gw",
       "target": "mcp",
-      "dashed": false
+      "dashed": false,
+      "color": "dark"
     },
     {
       "source": "mcp",
       "target": "res",
-      "dashed": false
+      "dashed": false,
+      "color": "dark"
     },
     {
       "source": "res",
       "target": "mcp",
-      "dashed": false
+      "dashed": false,
+      "color": "dark"
     },
     {
       "source": "mcp",
       "target": "authz",
-      "dashed": false
+      "dashed": false,
+      "color": "dark"
     },
     {
       "source": "authz",
       "target": "gw",
-      "dashed": false
+      "dashed": false,
+      "color": "dark"
     },
     {
       "source": "gw",
       "target": "agent",
-      "dashed": true
+      "dashed": true,
+      "color": "dark"
     },
     {
       "source": "agent",
       "target": "app",
-      "dashed": false
+      "dashed": false,
+      "color": "dark"
     }
   ],
   "steps": [
