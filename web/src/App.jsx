@@ -86,7 +86,7 @@ export default function App() {
       <header>
         <p className="banner" data-testid="banner">{banner}</p>
         <div className="head">
-          <h1 className="head__title"><span className="head__mark">CIBA</span>CIBA HITL Lab</h1>
+          <h1 className="head__title"><span className="head__mark">LAB</span>CIBA HITL Lab</h1>
           <div className="head__tools">
             <ModeToggle info={info} onSelect={onMode} />
             <button type="button" className="btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>Theme</button>

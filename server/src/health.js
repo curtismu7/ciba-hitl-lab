@@ -5,7 +5,7 @@ import express from 'express';
 import { allPassed, runChecks as defaultChecks } from './doctor.js';
 
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
-const DEMO = { id: 'ciba-hitl-hitl-lab', name: 'CIBA HITL Lab', version };
+const DEMO = { id: 'ciba-hitl-lab', name: 'CIBA HITL Lab', version };
 
 export function createHealth({ runChecks = defaultChecks, now = () => new Date(), intervalMs = 60_000 } = {}) {
   let last = { state: 'unknown', at: null };
