@@ -27,12 +27,13 @@ test('health returns demo-health/1 ready', async () => {
   assert.equal(r.json.state, 'ready');
 });
 
-test('catalog: 24 steps with labels, 9 groups, persona and gateway', async () => {
+test('catalog: diagram-studio/1 diagram with 24 steps, persona and gateway', async () => {
   const r = await call(mk(), 'GET', '/api/catalog');
   assert.equal(r.status, 200);
-  assert.equal(r.json.steps.length, 24);
-  assert.ok(r.json.steps.every((s) => s.label && s.what && s.why));
-  assert.equal(r.json.groups.length, 9);
+  assert.equal(r.json.diagram.steps.length, 24);
+  assert.ok(r.json.diagram.steps.every((s) => s.label && s.what));
+  assert.equal(r.json.diagram.nodes.length, 8);
+  assert.equal(r.json.diagram.edges.length, 24);
   assert.equal(r.json.persona.sub, 'user.0042');
   assert.equal(r.json.gateway.aud, 'https://ai-gateway.invalid');
   assert.equal(r.json.workspaceId, 'default');

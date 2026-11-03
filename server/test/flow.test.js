@@ -63,3 +63,16 @@ test('disabled agent client fails at step 5', async () => {
   assert.equal(r.ok, false);
   assert.equal(r.failedStep, 5);
 });
+
+test('diagram: valid diagram-studio/1, 24 steps, cast tokens all defined', async () => {
+  const { loadDiagram, DIAGRAM_NAMES } = await import('../src/diagramData.js');
+  const { validateDiagram } = await import('../src/diagramStudioValidate.js');
+  assert.deepEqual(DIAGRAM_NAMES, ['ciba-hitl']);
+  const d = loadDiagram('ciba-hitl');
+  assert.deepEqual(validateDiagram(d), []);
+  assert.equal(d.steps.length, 24);
+  assert.equal(d.edges.length, 24);
+  // every step's edges point at real edges; step titles are the owner-approved scenario titles
+  const titles = JSON.parse((await import('node:fs')).readFileSync(new URL('../data/scenarios.json', import.meta.url), 'utf8')).steps.map((s) => s.title);
+  assert.deepEqual(d.steps.map((s) => s.title), titles);
+});

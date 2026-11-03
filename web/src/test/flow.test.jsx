@@ -13,12 +13,16 @@ vi.mock("../lib/api.js", () => ({
     agent: { clientId: "personal-agent" },
     gateway: { aud: "https://ai-gateway.invalid" },
     downstream: { aud: "https://api.fabrikam.example" },
-    steps: Array.from({ length: 24 }, (_, i) => ({ label: `Step ${i + 1}`, what: `w${i + 1}`, why: `y${i + 1}` })),
-    groups: [
-      { name: "G1", from: 1, to: 4, color: "#2f6fdb" },
-      { name: "G2", from: 5, to: 12, color: "#c8102e" },
-      { name: "G3", from: 13, to: 24, color: "#5b6b7f" },
-    ],
+    diagram: {
+      title: "CIBA HITL", intro: "i",
+      groups: { login: { label: "G1", color: "blue" }, write: { label: "G2", color: "red" } },
+      nodes: [
+        { id: "app", label: "Application", kind: "login", x: 0, y: 0 },
+        { id: "gw", label: "Gateway", kind: "write", x: 300, y: 200 },
+      ],
+      edges: Array.from({ length: 24 }, (_, i) => ({ from: "app", to: "gw", dashed: false })),
+      steps: Array.from({ length: 24 }, (_, i) => ({ from: "app", to: "gw", label: `Step ${i + 1}`, what: `w${i + 1}`, why: `y${i + 1}` })),
+    },
   })),
   getInfo: vi.fn(async () => ({ source: "mock", realAvailable: false, realReason: "Set PINGONE_*", banner: "B" })),
   resetServer: vi.fn(async () => ({ ok: true })),

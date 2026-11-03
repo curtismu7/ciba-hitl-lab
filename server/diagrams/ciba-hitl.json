@@ -1,0 +1,414 @@
+{
+  "schema": "diagram-studio/1",
+  "id": "ciba-hitl",
+  "title": "Scope to tool with a human in the loop (CIBA HITL)",
+  "lede": "One login, one token exchange, one approval. The OBO token keeps the full scope set; Authorize denies a write with a CIBA identifier, the gateway rewrites the 403 into a JSON-RPC 2.0 error, the human approves, the agent replays, Authorize permits.",
+  "groups": {
+    "login": {
+      "label": "User login and user token",
+      "color": "blue"
+    },
+    "exchange": {
+      "label": "Token exchange (OBO) / write reaches Authorize",
+      "color": "dark"
+    },
+    "deny": {
+      "label": "Authorize denies, starts CIBA",
+      "color": "red"
+    },
+    "rewrite": {
+      "label": "Gateway rewrites the 403 / user approves",
+      "color": "amber"
+    },
+    "permit": {
+      "label": "Replay and permit",
+      "color": "blue"
+    },
+    "run": {
+      "label": "Tool runs, response returns",
+      "color": "grey"
+    },
+    "idp": {
+      "label": "IAM Core (mock)",
+      "color": "blue"
+    },
+    "gateway": {
+      "label": "Gateway and Authorize",
+      "color": "red"
+    }
+  },
+  "nodes": [
+    {
+      "id": "browser",
+      "label": "Browser",
+      "group": "login",
+      "x": 0,
+      "y": 150
+    },
+    {
+      "id": "app",
+      "label": "{{castBrand}} application",
+      "group": "login",
+      "x": 420,
+      "y": 0
+    },
+    {
+      "id": "iam",
+      "label": "IAM Core",
+      "group": "idp",
+      "x": 860,
+      "y": 0
+    },
+    {
+      "id": "agent",
+      "label": "{{castAgentId}}",
+      "group": "exchange",
+      "x": 420,
+      "y": 330
+    },
+    {
+      "id": "gw",
+      "label": "MCP Gateway",
+      "group": "gateway",
+      "x": 860,
+      "y": 330
+    },
+    {
+      "id": "authz",
+      "label": "Authorize",
+      "group": "gateway",
+      "x": 1300,
+      "y": 330
+    },
+    {
+      "id": "mcp",
+      "label": "MCP Server",
+      "group": "run",
+      "x": 860,
+      "y": 700
+    },
+    {
+      "id": "res",
+      "label": "Resource Server",
+      "group": "run",
+      "x": 1300,
+      "y": 700
+    }
+  ],
+  "edges": [
+    {
+      "source": "browser",
+      "target": "app",
+      "dashed": false
+    },
+    {
+      "source": "app",
+      "target": "iam",
+      "dashed": false
+    },
+    {
+      "source": "browser",
+      "target": "iam",
+      "dashed": false
+    },
+    {
+      "source": "iam",
+      "target": "app",
+      "dashed": false
+    },
+    {
+      "source": "agent",
+      "target": "iam",
+      "dashed": false
+    },
+    {
+      "source": "iam",
+      "target": "agent",
+      "dashed": false
+    },
+    {
+      "source": "agent",
+      "target": "iam",
+      "dashed": false
+    },
+    {
+      "source": "app",
+      "target": "agent",
+      "dashed": false
+    },
+    {
+      "source": "agent",
+      "target": "gw",
+      "dashed": true
+    },
+    {
+      "source": "gw",
+      "target": "authz",
+      "dashed": false
+    },
+    {
+      "source": "authz",
+      "target": "gw",
+      "dashed": false
+    },
+    {
+      "source": "gw",
+      "target": "agent",
+      "dashed": true
+    },
+    {
+      "source": "agent",
+      "target": "app",
+      "dashed": false
+    },
+    {
+      "source": "app",
+      "target": "agent",
+      "dashed": false
+    },
+    {
+      "source": "agent",
+      "target": "gw",
+      "dashed": true
+    },
+    {
+      "source": "gw",
+      "target": "authz",
+      "dashed": false
+    },
+    {
+      "source": "authz",
+      "target": "gw",
+      "dashed": false
+    },
+    {
+      "source": "gw",
+      "target": "mcp",
+      "dashed": false
+    },
+    {
+      "source": "mcp",
+      "target": "res",
+      "dashed": false
+    },
+    {
+      "source": "res",
+      "target": "mcp",
+      "dashed": false
+    },
+    {
+      "source": "mcp",
+      "target": "authz",
+      "dashed": false
+    },
+    {
+      "source": "authz",
+      "target": "gw",
+      "dashed": false
+    },
+    {
+      "source": "gw",
+      "target": "agent",
+      "dashed": true
+    },
+    {
+      "source": "agent",
+      "target": "app",
+      "dashed": false
+    }
+  ],
+  "steps": [
+    {
+      "title": "User initiates login",
+      "what": "The user opens the application in a browser and starts logging in. Nothing agent-specific has happened yet.",
+      "edges": [
+        0
+      ],
+      "why": "Everything after this hangs off one login session. The user logs in once, not once per tool."
+    },
+    {
+      "title": "Authorize request",
+      "what": "The application sends an OIDC authorization request to IAM Core for the client agentClient, asking for all three scopes at once.",
+      "edges": [
+        1
+      ],
+      "why": "This is the only scope consent in the flow: the user consents once, up front, not per tool call."
+    },
+    {
+      "title": "User authenticates",
+      "what": "The user authenticates with IAM Core. The arrow is two-way because the browser is redirected to IAM Core and returned afterwards.",
+      "edges": [
+        2
+      ],
+      "why": "This proves who the human is. Password, MFA and similar steps are whatever policy requires."
+    },
+    {
+      "title": "User token",
+      "what": "IAM Core returns a user token to the application.",
+      "edges": [
+        3
+      ],
+      "why": "The audience is the API gateway, not the AI gateway. The exchange in step 7 changes the audience. The token already carries all three scopes."
+    },
+    {
+      "title": "Agent authenticates",
+      "what": "The agent authenticates to IAM Core as itself, using its own non-human identity.",
+      "edges": [
+        4
+      ],
+      "why": "The agent gets an identity separate from the user. That separation lets the OBO token say \"this user, acting through this agent\"."
+    },
+    {
+      "title": "Agent token",
+      "what": "IAM Core returns an agent token.",
+      "edges": [
+        5
+      ],
+      "why": "It proves who the agent is, but names no user. It is never used on its own to call tools: it becomes the actor token in step 7."
+    },
+    {
+      "title": "Token exchange: actor + user token",
+      "what": "Token exchange with the actor token (agent) and the user token (subject). The result is the OBO token. Two-way: the agent sends the request and gets the new token back.",
+      "edges": [
+        6
+      ],
+      "why": "This is the only token exchange in the whole flow. The OBO token carries the FULL scope set; the token does not narrow per tool. Authorize does that."
+    },
+    {
+      "title": "Write request",
+      "what": "The application asks the agent to do something that needs a write, for example \"update this record\".",
+      "edges": [
+        7
+      ],
+      "why": "The agent, not the application, decides which tool to call."
+    },
+    {
+      "title": "Write tool call",
+      "what": "The agent calls the write tool through the MCP Gateway, carrying the OBO token.",
+      "edges": [
+        8
+      ],
+      "why": "The gateway sits in front of the MCP Server and intercepts the call before it reaches the tool."
+    },
+    {
+      "title": "Policy decision request",
+      "what": "The gateway asks Authorize for a decision. The inputs are the user (sub), the agent (act), the tool and the action.",
+      "edges": [
+        9
+      ],
+      "why": "The decision is made on who the user and agent are and which tool is called, not on token scopes alone. Authorize can plug into any gateway."
+    },
+    {
+      "title": "403 with identifier",
+      "what": "Policy says write requires HITL. Authorize triggers CIBA and returns DENY with an identifier, as an HTTP 403.",
+      "edges": [
+        10
+      ],
+      "why": "The identifier ties the later replay (step 15) to this approval. Because Authorize starts the CIBA request, it holds the audit record."
+    },
+    {
+      "title": "JSON-RPC 2.0 error with identifier",
+      "what": "The gateway rewrites the 403 into a JSON-RPC 2.0 error that carries the identifier, and returns it to the agent.",
+      "edges": [
+        11
+      ],
+      "why": "SDKs that treat a raw 403 as fatal would kill the session. A JSON-RPC error looks like an ordinary tool error, so the session survives."
+    },
+    {
+      "title": "Prompt for CIBA acceptance",
+      "what": "The agent sees the identifier and asks the application to prompt the user for CIBA acceptance.",
+      "edges": [
+        12
+      ],
+      "why": "The agent never calls CIBA endpoints itself. It only relays the request to the application. This is the one custom behaviour the customer AI team writes."
+    },
+    {
+      "title": "Accept / Yes",
+      "what": "The user accepts. The application tells the agent \"yes\".",
+      "edges": [
+        13
+      ],
+      "why": "This is the human-in-the-loop moment. Approval is recorded against the CIBA request, not trusted from the agent word."
+    },
+    {
+      "title": "Replay tool call, header has identifier",
+      "what": "The agent replays the same tool call with the same OBO token, adding a header that contains the identifier.",
+      "edges": [
+        14
+      ],
+      "why": "This is how the approval context gets back to Authorize across the gateway. The agent only echoes the identifier."
+    },
+    {
+      "title": "Policy decision request",
+      "what": "The gateway sends Authorize a second policy decision request, now including the identifier header.",
+      "edges": [
+        15
+      ],
+      "why": "Same inputs as step 10, plus the identifier."
+    },
+    {
+      "title": "Permit",
+      "what": "Authorize detects the header and checks the CIBA call. The human approved it, so Authorize returns PERMIT.",
+      "edges": [
+        16
+      ],
+      "why": "The agent is not asked to prove the approval: Authorize verifies it. A denied or expired request is denied again."
+    },
+    {
+      "title": "Tool request with OBO token",
+      "what": "The gateway forwards the tool request to the MCP Server with the OBO token.",
+      "edges": [
+        17
+      ],
+      "why": "The MCP Server sees the user in sub and the agent in act, so downstream audit shows both."
+    },
+    {
+      "title": "MCP Server executes the write",
+      "what": "The MCP Server calls the Resource Server to do the actual work.",
+      "edges": [
+        18
+      ],
+      "why": "The write only happens after a human approved it."
+    },
+    {
+      "title": "Resource Server result returns to MCP Server",
+      "what": "The Resource Server returns its result to the MCP Server.",
+      "edges": [
+        19
+      ],
+      "why": "The result is data, not a token: nothing here widens what the agent can do next."
+    },
+    {
+      "title": "Response inspected at Authorize",
+      "what": "As drawn, the MCP Server response goes to Authorize on its way back, not straight to the gateway.",
+      "edges": [
+        20
+      ],
+      "why": "Probably response inspection or audit. The policy engine sees both directions of the call."
+    },
+    {
+      "title": "Authorized response reaches the Gateway",
+      "what": "Authorize passes the response to the gateway.",
+      "edges": [
+        21
+      ],
+      "why": "The gateway relays it to the caller."
+    },
+    {
+      "title": "Gateway returns the result to the Agent",
+      "what": "The gateway returns the response to the agent.",
+      "edges": [
+        22
+      ],
+      "why": "The agent sees an ordinary tool result."
+    },
+    {
+      "title": "Agent shows the result in the Application",
+      "what": "The agent returns the result to the application, and the user sees it. Done.",
+      "edges": [
+        23
+      ],
+      "why": "One login, one exchange, one approval: the write happened under the user identity with the agent recorded."
+    }
+  ]
+}

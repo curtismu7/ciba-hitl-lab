@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { hostCheck, sameOriginWrites } from './safety.js';
 import { createHealth } from './health.js';
-import { createFlow, STEPS, GROUPS, personaOf, agentOf, gatewayOf, downstreamOf, jwtDecode } from './flow.js';
+import { createFlow, personaOf, agentOf, gatewayOf, downstreamOf, jwtDecode } from './flow.js';
+import { buildDiagram } from './diagramData.js';
 import { createMode, MODES } from './mode.js';
 import { realRun } from './realPingOne.js';
 import { workspaceId } from './workspace.js';
@@ -42,7 +43,7 @@ export function createApp({ health = createHealth(), mode = createMode(), flow =
   api.get('/catalog', (_req, res) => res.json({
     banner: BANNER(mode.source()), source: mode.source(),
     persona: personaOf(), agent: agentOf(), gateway: gatewayOf(), downstream: downstreamOf(),
-    steps: STEPS, groups: GROUPS,
+    diagram: buildDiagram(),
     workspaceId: workspaceId(_req),
   }));
 

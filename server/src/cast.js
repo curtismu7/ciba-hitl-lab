@@ -24,3 +24,21 @@ export function cast() {
     };
   } catch { return { ...DEFAULTS, downstream: 'https://api.fabrikam.example' }; }
 }
+
+// {{token}} templating for the diagram data. Tokens: {{castBrand}}, {{castAgentId}}, {{castPersonName}}, {{castHost}}.
+// A diagram token not in TOKEN_MAP is a bug (test-pinned by unfilled()).
+const TOKEN = /\{\{(\w+)\}\}/g;
+const TOKEN_MAP = { castBrand: 'brand', castAgentId: 'agentId', castPersonName: 'personName', castHost: 'host' };
+
+export function unfilled(text, c = cast()) {
+  return [...String(text).matchAll(TOKEN)].map((m) => m[1]).filter((k) => !TOKEN_MAP[k]);
+}
+export function fill(text, c = cast()) {
+  return String(text).replace(TOKEN, (m, k) => (TOKEN_MAP[k] ? c[TOKEN_MAP[k]] : m));
+}
+export function fillDeep(value, c = cast()) {
+  if (typeof value === 'string') return fill(value, c);
+  if (Array.isArray(value)) return value.map((v) => fillDeep(v, c));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fillDeep(v, c)]));
+  return value;
+}

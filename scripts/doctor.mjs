@@ -45,7 +45,7 @@ try {
 const port = Number(process.env.PORT) || 7580;
 await new Promise((resolve) => {
   const s = net.createServer();
-  s.once('error', (e) => { report('fail', 'port-free', `${port} is not free (${e.code}). Start with PORT=<other port in 7580-7569> npm run doctor, or see the README, section Ports`); resolve(); });
+  s.once('error', (e) => { report('fail', 'port-free', `${port} is not free (${e.code}). Start with PORT=<other port in 7580-7589> npm run doctor, or see the README, section Ports`); resolve(); });
   s.listen(port, '127.0.0.1', () => s.close(() => { report('pass', 'port-free', `${port} is free`); resolve(); }));
 });
 process.exit(failed ? 1 : 0);
