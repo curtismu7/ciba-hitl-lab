@@ -5,7 +5,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ReactFlow, Background, Controls, Panel, MarkerType, Handle, Position, useNodesState } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-const GROUP_COLORS = { red: "#c8102e", dark: "#1c2230", grey: "#5b6b7f", blue: "#2f6fdb", green: "#1f7a4d", amber: "#d98200" };
+// Group colors are the six diagram-studio palette names, mapped onto the lab's theme tokens
+// (the same roles as AI-DEMO2's shared participant palette: user/info blue, agent/dark, PingOne/success green,
+// gateway/warning amber, resource/grey, deny/Ping Red). No hex literals: everything is a var(--...).
+const GROUP_COLORS = {
+  red: "var(--accent)", dark: "var(--box-dark)", grey: "var(--box-grey)",
+  blue: "var(--box-blue)", green: "var(--status-ok)", amber: "var(--status-warn)",
+};
 const SIDES = { l: Position.Left, r: Position.Right, t: Position.Top, b: Position.Bottom };
 const POS = [10, 30, 50, 70, 90];
 
@@ -55,12 +61,12 @@ export default function FlowTab({ catalog }) {
     return () => clearTimeout(t);
   }, [running, step, speed, steps.length]);
 
-  const colorOf = (n) => GROUP_COLORS[groups[n.kind]?.color] ?? "#5b6b7f";
+  const colorOf = (n) => GROUP_COLORS[groups[n.kind]?.color] ?? "var(--box-grey)";
   const stepColor = (i) => {
     const s = steps[i];
-    if (!s) return "#5b6b7f";
+    if (!s) return "var(--box-grey)";
     const n = nodesData.find((x) => x.id === s.to) ?? nodesData.find((x) => x.id === s.from);
-    return n ? colorOf(n) : "#5b6b7f";
+    return n ? colorOf(n) : "var(--box-grey)";
   };
 
   const edges = useMemo(() => steps.map((s, i) => {
@@ -72,7 +78,7 @@ export default function FlowTab({ catalog }) {
       type: "smoothstep", animated: active,
       label: String(i + 1), labelBgPadding: [5, 3], labelBgBorderRadius: 8,
       labelStyle: { fontWeight: 700, fill: color },
-      labelBgStyle: { fill: "var(--panel, #fff)", stroke: color, strokeWidth: 1.5 },
+      labelBgStyle: { fill: "var(--surface)", stroke: color, strokeWidth: 1.5 },
       style: { stroke: color, strokeWidth: active ? 3.5 : 1.8, strokeDasharray: s.dashed ? "6 4" : undefined, opacity: step === -1 ? 0.9 : active ? 1 : seen ? 0.7 : 0.3 },
       markerEnd: marker,
       zIndex: active ? 10 : 1,

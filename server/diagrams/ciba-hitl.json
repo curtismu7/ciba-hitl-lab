@@ -30,11 +30,11 @@
     },
     "idp": {
       "label": "IAM Core (mock)",
-      "color": "blue"
+      "color": "green"
     },
     "gateway": {
       "label": "Gateway and Authorize",
-      "color": "red"
+      "color": "amber"
     }
   },
   "nodes": [

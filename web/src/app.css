@@ -170,3 +170,13 @@ form.stack button[type="submit"] { justify-self: start; margin-top: 4px; }
 .replay { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
 .replay input { min-width: 220px; }
 @media (max-width: 900px) { .steplist { display: none; } .flowwrap { height: auto; } .canvas { height: 60vh; } }
+
+/* Diagram nodes: the Ping box look (dark fills both themes, --on-box text), like AI-DEMO2's StaticFlowDiagram pingStyle. */
+.dnode { color: var(--on-box); background: var(--box-dark); }
+.dnode small { color: var(--on-box); opacity: 0.7; }
+.dnode.authz { background: var(--box-red); }
+.react-flow__background { background: var(--bg-lab); }
+.react-flow__controls button { color: var(--text); background: var(--surface); border-bottom: 1px solid var(--border); }
+.react-flow__edge-textbg { fill: var(--surface); stroke: var(--border); }
+.react-flow__edge-text { fill: var(--text); }
+.react-flow__attribution { display: none; }
