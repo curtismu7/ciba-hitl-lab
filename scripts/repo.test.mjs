@@ -36,8 +36,8 @@ test('content pack validation rejects a broken pack', () => {
 
 test('shelf entry matches the demo: id, provisional catalog E12, port, health path, loopback url, portable composeFile', () => {
   const [d] = JSON.parse(read('docs/shelf-entry.json')).demos;
-  assert.equal(d.id, 'obo-lab');
-  assert.equal(d.catalogId, 'O1');
+  assert.equal(d.id, 'ciba-hitl-lab');
+  assert.equal(d.catalogId, 'C1');
   assert.equal(d.kind, 'Demo');
   assert.equal(d.healthPath, '/api/health');
   const u = new URL(d.url);
@@ -46,7 +46,7 @@ test('shelf entry matches the demo: id, provisional catalog E12, port, health pa
   assert.equal(JSON.parse(read('content-pack.json')).demo.baseUrl, d.url);
   assert.ok(!path.isAbsolute(d.composeFile), 'composeFile must be relative');
   assert.ok(!d.composeFile.includes('..'));
-  assert.equal(d.composeFile, 'obo-lab/docker-compose.yml', 'the repo folder name, relative to the demo root');
+  assert.equal(d.composeFile, 'ciba-hitl-lab/docker-compose.yml', 'the repo folder name, relative to the demo root');
   assert.ok(!/\/Users\/|\/home\//.test(read('docs/shelf-entry.json')));
 });
 
@@ -55,7 +55,7 @@ test('README is true: default port, commands exist, endpoints are real, files ex
   const pkg = JSON.parse(read('package.json'));
   for (const s of ['doctor', 'test', 'reset', 'mutation-check', 'content-pack']) { assert.ok(pkg.scripts[s], s); assert.ok(readme.includes(s === 'test' ? 'npm test' : `npm run ${s}`), s); }
   for (const f of ['scripts/run.sh', 'docs/architecture.md', 'docs/safety.md', 'docs/references.md', 'docs/talk-track.md', 'content-pack.json', 'docs/shelf-entry.json']) { assert.ok(readme.includes(f), f); assert.ok(fs.existsSync(path.join(ROOT, f)), f); }
-  assert.match(readme, /localhost:7560/);
+  assert.match(readme, /localhost:7580/);
   const app = read('server/src/app.js');
   for (const m of readme.matchAll(/`(?:GET|POST|PUT)? ?(\/api\/[a-z/-]+)/g)) {
     const route = m[1].replace(/^\/api/, '');
@@ -63,16 +63,16 @@ test('README is true: default port, commands exist, endpoints are real, files ex
   }
   for (const p of new Set([...readme.matchAll(/localhost:(\d{4,5})/g)].map((m) => Number(m[1])))) assert.equal(portProblem(p), null, String(p));
   assert.match(readme, /\*\*Everything here is SIMULATED\.\*\*/);
-  assert.match(readme, /PORT=<other port in 7560-7569> npm start|PORT=<other port> npm start/);
-  assert.equal(JSON.parse(read('server/data/scenarios.json')).steps.length, 7);
+  assert.match(readme, /PORT=<other port in 7580-7589> npm start|PORT=<other port> npm start/);
+  assert.equal(JSON.parse(read('server/data/scenarios.json')).steps.length, 24);
 });
 
-test('docs/safety.md labels the simulated model and has the UNVERIFIED section', () => {
+test('docs/safety.md labels what is simulated and has the UNVERIFIED section', () => {
   const doc = read('docs/safety.md');
   assert.match(doc, /## What is simulated/);
-  assert.match(doc, /deterministic feature scorer/);
+  assert.match(doc, /HS256 fixture tokens/);
   assert.match(doc, /## UNVERIFIED/);
-  assert.doesNotMatch(doc, /Jev (scores|achieves|delivers)/i);
+  assert.doesNotMatch(doc, /Authorize (scores|achieves|delivers)/i);
 });
 
 test('docs/references.md marks every product claim UNVERIFIED', () => {
@@ -91,7 +91,7 @@ test('hygiene: every host in every tracked text file is reserved, no keys or lit
   for (const f of tracked().filter((x) => !/\.(png|ico|woff2?)$/.test(x) && !x.startsWith('node_modules/'))) {
     const text = read(f);
     if (f !== 'scripts/repo.test.mjs') {
-      assert.deepEqual(scanHosts(text).filter((h) => !/^(www\.rfc-editor\.org|json-schema\.org|github\.com|www\.w3\.org|auth\.pingone\.com|api\.pingone\.com|0\.0\.0\.0|192\.0\.2\.\d+|localhost.*)$/.test(h) && !h.includes('$')), [], `${f}: real host`);
+      assert.deepEqual(scanHosts(text).filter((h) => !/^(www\.rfc-editor\.org|json-schema\.org|github\.com|www\.w3\.org|auth\.pingone\.com|api\.pingone\.com|openid\.net|www\.jsonrpc\.org|0\.0\.0\.0|192\.0\.2\.\d+|localhost.*)$/.test(h) && !h.includes('$')), [], `${f}: real host`);
       assert.deepEqual(scanKeys(text), [], `${f}: key or literal JWT`);
     }
     assert.ok(!/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/.test(text), `${f}: uuid-shaped id`);
@@ -117,7 +117,7 @@ test('the CI workflow is GitHub-hosted, Node 26 only, and has build, test, docto
   for (const job of ['build:', 'test:', 'doctor:', 'forbidden-strings:', 'gitleaks:']) assert.ok(ci.includes(`  ${job}`), job);
   assert.match(ci, /secrets\.FORBIDDEN_STRINGS/);
   assert.match(ci, /actions\/checkout@v5/);
-  assert.match(ci, /PORT=7569 npm run doctor/);
+  assert.match(ci, /PORT=7589 npm run doctor/);
 });
 
 test('Node 26 everywhere: engines, .nvmrc, both Docker stages', () => {
@@ -135,14 +135,14 @@ test('README follows the README standard: title ends in LAB, plain Tier and Repo
   const r = read('README.md');
   assert.match(r.split('\n')[0], /^# .* LAB$/);
   assert.match(r, /^Tier: Demo$/m);
-  assert.match(r, /^Repo: https:\/\/github\.com\/ping-sandbox\/obo-lab$/m);
-  assert.match(r, /^Catalog: O1/m);
+  assert.match(r, /^Repo: /m);
+  assert.match(r, /^Catalog: C1/m);
   const heads = [...r.matchAll(/^## (.+)$/gm)].map((m) => m[1]);
   const want = ['What is simulated', 'Run from a clone', 'Settings file', 'Ports, and what to do if the port is taken', 'Mock and Real modes', 'Health, doctor and reset', 'Docker', 'Tests', 'Troubleshooting', 'Ownership'];
   const at = want.map((w) => heads.findIndex((h) => h.startsWith(w)));
   assert.ok(at.every((i) => i >= 0), at.join());
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'sections are in the standard order');
-  assert.match(r, /lsof -iTCP:7560 -sTCP:LISTEN -n -P/);
+  assert.match(r, /lsof -iTCP:7580 -sTCP:LISTEN -n -P/);
   assert.ok(!/ping-devops|cmuir|curtismu/i.test(r));
 });
 
@@ -181,7 +181,7 @@ test('no crypto.generateKeyPairSync anywhere (aborts under GC on Node 20 here)',
   for (const f of tracked().filter((x) => /\.(m?js|jsx)$/.test(x) && x !== 'scripts/repo.test.mjs')) assert.ok(!/generateKeyPair/.test(read(f)), f);
 });
 
-test('workspaces are server and web; ports in every file are in 7560-7569 (or loopback docs)', () => {
+test('workspaces are server and web; ports in every file are in 7580-7589 (or loopback docs)', () => {
   assert.deepEqual(JSON.parse(read('package.json')).workspaces, ['server', 'web']);
   const forbidden = [5000, 8080, 5173, 3900, 4000, 4400, 4510, 4840];
   for (const f of ['README.md', 'docker-compose.yml', 'Dockerfile', '.env.example', 'docs/shelf-entry.json']) for (const p of read(f).matchAll(/(?:localhost|127\.0\.0\.1):(\d{4,5})/g)) assert.ok(!forbidden.includes(Number(p[1])), `${f}: ${p[0]}`);

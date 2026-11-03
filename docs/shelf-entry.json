@@ -1,17 +1,17 @@
 {
   "demos": [
     {
-      "id": "obo-lab",
-      "name": "OBO Delegation Inspector LAB",
-      "catalogId": "O1",
+      "id": "ciba-hitl-lab",
+      "name": "CIBA HITL Lab",
+      "catalogId": "C1",
       "kind": "Demo",
-      "description": "Seven steps of on-behalf-of delegation: the person's token and the agent's client-credentials token go into an RFC 8693 exchange, and one delegated token comes out — sub kept, act added, aud and scope narrowed. The downstream accepts the delegated token and refuses the person's own. Mock engine or your own PingOne tenant (Mock/Real toggle).",
-      "url": "http://localhost:7560",
+      "description": "Twenty-four steps from scope to tool with a human in the loop: one login, one token exchange, an OBO token that keeps the full scope set; a write is denied with a CIBA identifier, the gateway rewrites the 403 into a JSON-RPC 2.0 error, the human approves, the agent replays, Authorize verifies the approval and permits. Mock engine or your own PingOne tenant (Mock/Real toggle).",
+      "url": "http://localhost:7580",
       "healthPath": "/api/health",
-      "composeFile": "obo-lab/docker-compose.yml",
+      "composeFile": "ciba-hitl-lab/docker-compose.yml",
       "composeOverlays": [],
-      "tags": ["agent-identity", "token-exchange", "authorization-policy", "simulated"],
-      "notes": "Host-run: ./scripts/run.sh (port 7560). Mock: no tenant, no credentials. Real: PINGONE_* + OBO_LAB_* in ~/Development/.env (owner-set). Docker: HOST_PORT=7560 docker compose up --build -d (published on 127.0.0.1 only). composeFile is relative to the demo root."
+      "tags": ["ciba", "hitl", "token-exchange", "authorization-policy", "json-rpc", "simulated"],
+      "notes": "Host-run: ./scripts/run.sh (port 7580). Mock: no tenant, no credentials. Real: PINGONE_* + CIBA_LAB_* in ~/Development/.env (owner-set). Docker: HOST_PORT=7580 docker compose up --build -d (published on 127.0.0.1 only). composeFile is relative to the demo root."
     }
   ]
 }

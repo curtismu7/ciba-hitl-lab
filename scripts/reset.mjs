@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Reset a running obo-lab: bumps the epoch so other open pages notice, and clears nothing else (the lab holds no state).
-//   node scripts/reset.mjs [base-url]      (default http://localhost:${PORT:-7560})
+//   node scripts/reset.mjs [base-url]      (default http://localhost:${PORT:-7580})
 // Loopback only: refuses any other host. Needs the server already running; sends the same-origin header the server requires.
 import { isLoopbackHost } from '../server/src/safety.js';
 
-export async function reset(base = `http://localhost:${process.env.PORT || 7560}`) {
+export async function reset(base = `http://localhost:${process.env.PORT || 7580}`) {
   const u = new URL(base);
   if (!isLoopbackHost(u.hostname)) throw new Error(`refusing ${u.hostname}: loopback only`);
   let r;

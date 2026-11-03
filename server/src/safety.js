@@ -1,9 +1,9 @@
 // Safety rules. Pure functions plus two tiny middlewares. No I/O.
-//  1. Loopback bind only unless OBOL_BIND is set on purpose.
+//  1. Loopback bind only unless CIBA_BIND is set on purpose.
 //  2. Host header must be a loopback name (DNS-rebinding defence).
 //  3. A write must be same-origin: a cross-origin Origin, or a cross-site Sec-Fetch-Site, is refused.
 //  4. Every host in any shipped text is reserved (.invalid / .example / apex of example.com|net|org).
-//  5. Ports are 7560-4999 and never one of the forbidden ones.
+//  5. Ports are 7580-7589 and never one of the forbidden ones.
 //  6. Shipped text carries no key-looking string (sk-...) and no literal JWT: tokens are minted by the mock AS at run time.
 
 export function isLoopbackHost(host) {
@@ -11,16 +11,16 @@ export function isLoopbackHost(host) {
   return h === 'localhost' || h === '::1' || /^127(\.\d{1,3}){3}$/.test(h);
 }
 
-export function bindHost(env = process.env) { return env.OBOL_BIND || '127.0.0.1'; }
+export function bindHost(env = process.env) { return env.CIBA_BIND || '127.0.0.1'; }
 
 export function assertBindAllowed(host, env = process.env) {
-  if (isLoopbackHost(host) || env.OBOL_BIND) return host;
-  throw new Error(`refusing to bind ${host}: loopback only. Set OBOL_BIND to opt in.`);
+  if (isLoopbackHost(host) || env.CIBA_BIND) return host;
+  throw new Error(`refusing to bind ${host}: loopback only. Set CIBA_BIND to opt in.`);
 }
 
-export const PORT_MIN = 7560;
-export const PORT_MAX = 7569;
-export const DEFAULT_PORT = 7560;
+export const PORT_MIN = 7580;
+export const PORT_MAX = 7589;
+export const DEFAULT_PORT = 7580;
 const FORBIDDEN_PORTS = new Set([5000, 8080, 5173, 3900, 4000, 4400, 4510, 4600, 4601, 4840, 18080, 19080, 19090]);
 export function portProblem(port) {
   if (!Number.isInteger(port)) return 'PORT is not an integer';

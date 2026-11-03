@@ -1,0 +1,327 @@
+{
+  "schema": "demo-content-pack/1",
+  "id": "ciba-hitl-lab",
+  "title": "CIBA HITL Lab",
+  "version": "0.1.0",
+  "demo": {
+    "id": "ciba-hitl-lab",
+    "name": "CIBA HITL Lab",
+    "catalog": "C1",
+    "baseUrl": "http://localhost:7580",
+    "doctor": "/api/health",
+    "tags": [
+      "ciba",
+      "hitl",
+      "obo",
+      "token-exchange",
+      "json-rpc",
+      "authorization-policy",
+      "mcp",
+      "mock",
+      "real"
+    ]
+  },
+  "glossary": [
+    {
+      "id": "obo",
+      "term": "On-behalf-of (OBO)",
+      "definition": "One token exchange gives the agent a token where sub stays the person and act names the agent. The OBO token keeps the FULL scope set; it does not narrow per tool."
+    },
+    {
+      "id": "hitl",
+      "term": "Human-in-the-loop (HITL)",
+      "definition": "A policy requirement that a sensitive action (here: any write) may only run after a human approves it. The approval is verified by Authorize, never trusted from the agent."
+    },
+    {
+      "id": "ciba",
+      "term": "CIBA",
+      "definition": "Client Initiated Backchannel Authentication: Authorize starts an out-of-band approval request and returns an identifier that ties the DENY to the later PERMIT."
+    },
+    {
+      "id": "identifier",
+      "term": "The identifier",
+      "definition": "Authorizes CIBA request id, returned in the 403, echoed by the agent in a header on replay. Single use: a second replay with the same identifier denies again."
+    },
+    {
+      "id": "jsonrpc",
+      "term": "JSON-RPC 2.0 error rewrite",
+      "definition": "The gateway rewrites the raw 403 into a JSON-RPC 2.0 tool error carrying the identifier, so SDKs that treat a raw 403 as fatal keep the session alive."
+    },
+    {
+      "id": "narrowing",
+      "term": "Policy, not scopes",
+      "definition": "Per-tool narrowing happens in the Authorize policy decision, not in the token: the OBO token carries api:read api:write api:delete end to end."
+    }
+  ],
+  "cards": [
+    {
+      "id": "step-1",
+      "label": "User initiates login",
+      "description": "User initiates login",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-2",
+      "label": "Authorize request",
+      "description": "Authorize request",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-3",
+      "label": "User authenticates",
+      "description": "User authenticates",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-4",
+      "label": "User token",
+      "description": "User token",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-5",
+      "label": "Agent authenticates",
+      "description": "Agent authenticates",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-6",
+      "label": "Agent token",
+      "description": "Agent token",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-7",
+      "label": "Token exchange: actor + user token",
+      "description": "Token exchange: actor + user token",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-8",
+      "label": "Write request",
+      "description": "Write request",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-9",
+      "label": "Write tool call",
+      "description": "Write tool call",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-10",
+      "label": "Policy decision request",
+      "description": "Policy decision request",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-11",
+      "label": "403 with identifier",
+      "description": "403 with identifier",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-12",
+      "label": "JSON-RPC 2.0 error with identifier",
+      "description": "JSON-RPC 2.0 error with identifier",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-13",
+      "label": "Prompt for CIBA acceptance",
+      "description": "Prompt for CIBA acceptance",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-14",
+      "label": "Accept / Yes",
+      "description": "Accept / Yes",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-15",
+      "label": "Replay tool call, header has identifier",
+      "description": "Replay tool call, header has identifier",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-16",
+      "label": "Policy decision request",
+      "description": "Policy decision request",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-17",
+      "label": "Permit",
+      "description": "Permit",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-18",
+      "label": "Tool request with OBO token",
+      "description": "Tool request with OBO token",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-19",
+      "label": "MCP Server executes the write",
+      "description": "MCP Server executes the write",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-20",
+      "label": "Resource Server result returns to MCP Server",
+      "description": "Resource Server result returns to MCP Server",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-21",
+      "label": "Response inspected at Authorize",
+      "description": "Response inspected at Authorize",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-22",
+      "label": "Authorized response reaches the Gateway",
+      "description": "Authorized response reaches the Gateway",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-23",
+      "label": "Gateway returns the result to the Agent",
+      "description": "Gateway returns the result to the Agent",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    },
+    {
+      "id": "step-24",
+      "label": "Agent shows the result in the Application",
+      "description": "Agent shows the result in the Application",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/#/flow"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "8693",
+      "title": "RFC 8693 OAuth 2.0 Token Exchange",
+      "url": "https://www.rfc-editor.org/rfc/8693",
+      "kind": "standard",
+      "use": "the exchange and the act claim",
+      "status": "read",
+      "checked": "2026-11-03"
+    },
+    {
+      "id": "ciba",
+      "title": "OpenID CIBA (Client Initiated Backchannel Authentication)",
+      "url": "https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html",
+      "kind": "standard",
+      "use": "the approval request, the identifier and the backchannel",
+      "status": "read",
+      "checked": "2026-11-03"
+    },
+    {
+      "id": "jsonrpc2",
+      "title": "JSON-RPC 2.0",
+      "url": "https://www.jsonrpc.org/specification",
+      "kind": "standard",
+      "use": "the tool error shape the gateway rewrites the 403 into",
+      "status": "read",
+      "checked": "2026-11-03"
+    }
+  ]
+}

@@ -1,12 +1,13 @@
-// One Express app. /api = the OBO lab: the 7-step delegation run, the diff table facts, the downstream
-// accept/refuse, the leak scan, agent revocation. Loopback Host check and same-origin writes everywhere.
+// One Express app. /api = the CIBA HITL lab: the 24-step walkthrough data, a live write call
+// (403 + JSON-RPC rewrite -> approve -> replay -> permit), the CIBA approve/deny, decode.
+// Loopback Host check and same-origin writes everywhere.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { hostCheck, sameOriginWrites } from './safety.js';
 import { createHealth } from './health.js';
-import { createWorld, personaOf, agentOf, exchangerOf, downstreamOf, jwtDecode } from './obo.js';
+import { createFlow, STEPS, GROUPS, personaOf, agentOf, gatewayOf, downstreamOf, jwtDecode } from './flow.js';
 import { createMode, MODES } from './mode.js';
 import { realRun } from './realPingOne.js';
 import { workspaceId } from './workspace.js';
@@ -14,10 +15,10 @@ import { workspaceId } from './workspace.js';
 const WEB_DIST = process.env.WEB_DIST || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web/dist');
 const bad = (res, message, status = 400) => res.status(status).json({ error: status === 404 ? 'not_found' : 'bad_request', message });
 export const BANNER = (source) => source === 'real'
-  ? 'REAL mode: every step runs against YOUR PingOne tenant with the owner\'s Worker credentials. Tokens are shown because you own the run; the model never receives one. The Worker secret is a hash only.'
-  : 'MOCK mode. SIMULATED: in-process mock issuer, mock exchanger and mock downstream. No tenant, no outbound network. Tokens are mock and labelled.';
+  ? 'REAL mode: the agent identity, the RFC 8693 exchange and the CIBA backchannel run against YOUR PingOne tenant (owner-configured). The policy decision, the gateway JSON-RPC rewrite and the MCP tool execution stay SIMULATED app-side. Token bodies stay on the server; the Worker secret is a hash only.'
+  : 'MOCK mode. SIMULATED: in-process mock IAM, mock Authorize policy, mock CIBA, mock gateway and mock MCP/RS. No tenant, no outbound network. Tokens are mock and labelled.';
 
-export function createApp({ health = createHealth(), mode = createMode(), world = createWorld() } = {}) {
+export function createApp({ health = createHealth(), mode = createMode(), flow = createFlow() } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.use(hostCheck);
@@ -28,7 +29,7 @@ export function createApp({ health = createHealth(), mode = createMode(), world 
   api.use(express.json({ limit: '8kb' }));
   api.use('/health', health.router);
 
-  api.get('/info', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...mode.info(), banner: BANNER(mode.source()), epoch: world.state.runs.length }); });
+  api.get('/info', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...mode.info(), banner: BANNER(mode.source()), epoch: flow.state.runs.length }); });
   // Rule 19: POST /api/mode with exactly {"source": "mock"|"real"}. Real unconfigured -> 409 with the how-to.
   api.post('/mode', (req, res) => {
     const b = req.body;
@@ -40,24 +41,39 @@ export function createApp({ health = createHealth(), mode = createMode(), world 
 
   api.get('/catalog', (_req, res) => res.json({
     banner: BANNER(mode.source()), source: mode.source(),
-    persona: personaOf(), agent: agentOf(), exchanger: exchangerOf(),
-    downstream: downstreamOf(),
-    workspaceId: 'default',
-    steps: 7,
+    persona: personaOf(), agent: agentOf(), gateway: gatewayOf(), downstream: downstreamOf(),
+    steps: STEPS, groups: GROUPS,
+    workspaceId: workspaceId(_req),
   }));
 
-  // The run: 7 steps, mock engine or your real tenant.
-  api.post('/run', async (req, res) => {
+  // The live write call. Without an identifier: steps 1-12 (403 + JSON-RPC error). With one and a
+  // recorded approval: steps 15-24 (PERMIT, tool ran). In Real mode the token legs are live.
+  api.post('/write', async (req, res) => {
+    const h = req.body?.identifierHeader;
+    if (h !== undefined && (typeof h !== 'string' || h.length > 200)) return bad(res, 'identifierHeader must be a string of at most 200 characters');
     try {
-      const run = mode.source() === 'real' ? await realRun() : await world.run();
-      if (run) run.workspaceId = workspaceId(req);
+      const run = mode.source() === 'real'
+        ? { ...(await realRun()), outcome: 'real_token_legs', note: 'Real mode runs the token legs live; approve/replay below are the simulated legs.' }
+        : await flow.writeCall({ identifierHeader: h });
+      run.workspaceId = workspaceId(req);
       return res.json({ banner: BANNER(mode.source()), source: mode.source(), ...run });
     } catch (e) {
       return res.status(502).json({ error: 'real_unavailable', message: e.message });
     }
   });
 
-  // Decode any token the page holds (mock tokens decode; real ones too - they are the caller's own).
+  // Step 14: the human accepted (or refused) in the application.
+  api.post('/approve', (req, res) => {
+    const id = req.body?.identifier;
+    if (typeof id !== 'string' || id.length === 0 || id.length > 200) return bad(res, 'identifier required');
+    return flow.approve(id) ? res.json({ ok: true, identifier: id, state: 'approved' }) : res.status(404).json({ error: 'not_found', message: 'unknown or expired identifier' });
+  });
+  api.post('/deny', (req, res) => {
+    const id = req.body?.identifier;
+    if (typeof id !== 'string' || id.length === 0 || id.length > 200) return bad(res, 'identifier required');
+    return flow.denyCiba(id) ? res.json({ ok: true, identifier: id, state: 'denied' }) : res.status(404).json({ error: 'not_found', message: 'unknown or expired identifier' });
+  });
+
   api.post('/decode', (req, res) => {
     const t = String(req.body?.token ?? '');
     const claims = jwtDecode(t);
@@ -65,15 +81,10 @@ export function createApp({ health = createHealth(), mode = createMode(), world 
     return res.json({ claims });
   });
 
-  // Revocation: revoke the agent's client, then the next mock run fails at step 2 (invalid_client).
-  api.post('/revoke', (_req, res) => {
-    world.revokeAgent();
-    return res.json({ ok: true, note: 'agent client revoked: the next run refuses step 2 with invalid_client' });
-  });
-  api.post('/reset', (_req, res) => { world.reset(); return res.json({ ok: true }); });
+  api.post('/reset', (_req, res) => { flow.reset(); return res.json({ ok: true, epoch: flow.state.runs.length }); });
 
   if (fs.existsSync(WEB_DIST)) app.use(express.static(WEB_DIST));
-  app.get('/favicon.ico', (_req, res) => { res.set('Content-Type', 'image/svg+xml'); res.set('Cache-Control', 'public, max-age=86400'); res.send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" rx="3" fill="%23186a8e"/><path d="M3 8h7M7 4l4 4-4 4" stroke="white" stroke-width="2" fill="none"/></svg>'); });
+  app.get('/favicon.ico', (_req, res) => { res.set('Content-Type', 'image/svg+xml'); res.set('Cache-Control', 'public, max-age=86400'); res.send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" rx="3" fill="%23b5122f"/><path d="M4 9h5M8 5l3 4-3 4" stroke="white" stroke-width="2" fill="none"/></svg>'); });
   app.use('/api', api);
   app.use((_req, res) => res.status(404).json({ error: 'not_found' }));
   return app;

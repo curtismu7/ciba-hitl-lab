@@ -1,13 +1,13 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Dev: the API runs on PORT (default 7560, npm run dev -w server) and Vite on VITE_PORT (default 7561). /api is proxied,
+// Dev: the API runs on PORT (default 7580, npm run dev -w server) and Vite on VITE_PORT (default 7581). /api is proxied,
 // so the browser only ever talks to one origin (same-origin writes).
-const api = { target: `http://127.0.0.1:${Number(process.env.PORT) || 7560}` };
+const api = { target: `http://127.0.0.1:${Number(process.env.PORT) || 7580}` };
 
 export default defineConfig({
   plugins: [react()],
-  server: { host: "127.0.0.1", port: Number(process.env.VITE_PORT) || 7561, strictPort: true, proxy: { "/api": api } },
+  server: { host: "127.0.0.1", port: Number(process.env.VITE_PORT) || 7581, strictPort: true, proxy: { "/api": api } },
   // The server core (real mock AS, gateway and runner) is loaded by Node itself in tests, so its data files resolve normally.
   test: { environment: "jsdom", globals: true, setupFiles: "./src/testSetup.js", server: { deps: { external: [/\/server\/src\//] } } },
 });

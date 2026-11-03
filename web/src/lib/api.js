@@ -15,6 +15,7 @@ export const getInfo = () => getJson("/api/info");
 // Rule 19: switch the runtime mode. Real unconfigured -> 409 with the server's how-to message.
 export const requestModeSwitch = (source) => postJson("/api/mode", { source });
 export const resetServer = () => postJson("/api/reset");
-export const runObo = () => postJson("/api/run");
-export const revokeAgent = () => postJson("/api/revoke");
+export const runWrite = (identifierHeader) => postJson("/api/write", identifierHeader ? { identifierHeader } : {});
+export const approveCiba = (identifier) => postJson("/api/approve", { identifier });
+export const denyCiba = (identifier) => postJson("/api/deny", { identifier });
 export const decodeToken = (token) => postJson("/api/decode", { token });

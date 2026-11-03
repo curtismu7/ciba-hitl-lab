@@ -11,7 +11,7 @@ RUN npm run build -w web
 
 FROM node:26-alpine
 WORKDIR /app
-ENV NODE_ENV=production PORT=7560
+ENV NODE_ENV=production PORT=7580
 COPY package.json package-lock.json ./
 COPY web/package.json web/
 COPY server/package.json server/
@@ -21,8 +21,8 @@ COPY server/data server/data
 COPY server/diagrams server/diagrams
 COPY --from=build /app/web/dist web/dist
 USER node
-EXPOSE 7560
-# Inside the container the server must listen on all interfaces, so OBOL_BIND is set here on purpose.
+EXPOSE 7580
+# Inside the container the server must listen on all interfaces, so CIBA_BIND is set here on purpose.
 # The compose file publishes the port on 127.0.0.1 only; do not publish it more widely.
-ENV OBOL_BIND=0.0.0.0
+ENV CIBA_BIND=0.0.0.0
 CMD ["node", "server/src/index.js"]

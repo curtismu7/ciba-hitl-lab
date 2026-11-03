@@ -9,12 +9,13 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export const MUTATIONS = [
-  ['obo: act claim dropped from the delegated token', 'obo.js', "act: { sub: AGENT.clientId, iss: ISSUER },", ""],
-  ['obo: sub swapped to the agent (impersonation)', 'obo.js', "iss: ISSUER, sub: PERSONA.sub, aud: AUD_DOWNSTREAM, client_id: EXCHANGER.clientId,", "iss: ISSUER, sub: AGENT.clientId, aud: AUD_DOWNSTREAM, client_id: EXCHANGER.clientId,"],
-  ['obo: scope not narrowed', 'obo.js', "scope: DOWNSTREAM_SCOPE, iat, exp: iat + 300,\n        act:", "scope: PERSONA.inboundScope, iat, exp: iat + 300,\n        act:"],
+  ['flow: act claim dropped from the OBO token', 'flow.js', "act: { sub: AGENT.clientId, iss: ISSUER },", ""],
+  ['flow: sub swapped to the agent (impersonation)', 'flow.js', "iss: ISSUER, sub: PERSONA.sub, aud: GW.aud, client_id: 'token-exchanger',", "iss: ISSUER, sub: AGENT.clientId, aud: GW.aud, client_id: 'token-exchanger',"],
+  ['flow: OBO token narrowed per tool (must NOT narrow)', 'flow.js', "scope: 'api:read api:write api:delete', iat, exp: iat + 300,\n        act:", "scope: 'api:read', iat, exp: iat + 300,\n        act:"],
+  ['flow: approval not required to permit', 'flow.js', "const approved = replayed && state.approvals[identifierHeader] === 'approved' && state.approvals[`${identifierHeader}:used`] === undefined;", "const approved = replayed;"],
+  ['flow: identifier not single use', 'flow.js', "if (approved) state.approvals[`${identifierHeader}:used`] = 'used'; // single use", ""],
   ['downstream: act requirement not enforced', 'jwt.js', "if (requireAct && !claims.act) return { ok: false, why: 'no act claim: a token that is not delegated does not name an agent' };", "if (false) return { ok: false };"],
   ['downstream: signature not verified', 'jwt.js', "if (expected !== parts[2]) return { ok: false, why: 'bad signature' };", "if (false) return { ok: false };"],
-  ['revocation: revoked agent still runs', 'obo.js', "if (state.revoked) {", "if (false) {"],
   ['safety: cross-origin writes accepted', 'safety.js', "if (site && site !== 'same-origin' && site !== 'none') return res.status(403)", "if (false) return res.status(403)"],
 ];
 
@@ -27,7 +28,7 @@ export function runMutations({ only } = {}) {
   const results = [];
   for (const m of MUTATIONS) {
     if (only && !m[0].includes(only)) continue;
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'obo-mut-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ciba-mut-'));
     try {
       fs.cpSync(path.join(ROOT, 'server'), path.join(dir, 'server'), { recursive: true });
       const target = path.join(dir, 'server/src', m[1]);

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createApp } from '../src/app.js';
+import { createMode } from '../src/mode.js';
 
 const call = async (app, method, path, body, extraHeaders = {}) => {
   const { createServer } = await import('node:http');
@@ -17,7 +18,6 @@ const call = async (app, method, path, body, extraHeaders = {}) => {
     return { status: res.status, json };
   } finally { await new Promise((r) => server.close(r)); }
 };
-import { createMode } from '../src/mode.js';
 const mk = () => createApp({ mode: createMode({ forceMock: true }) });
 
 test('health returns demo-health/1 ready', async () => {
@@ -27,41 +27,60 @@ test('health returns demo-health/1 ready', async () => {
   assert.equal(r.json.state, 'ready');
 });
 
-test('catalog describes the persona, agent, exchanger and downstream', async () => {
+test('catalog: 24 steps with labels, 9 groups, persona and gateway', async () => {
   const r = await call(mk(), 'GET', '/api/catalog');
   assert.equal(r.status, 200);
+  assert.equal(r.json.steps.length, 24);
+  assert.ok(r.json.steps.every((s) => s.label && s.what && s.why));
+  assert.equal(r.json.groups.length, 9);
   assert.equal(r.json.persona.sub, 'user.0042');
-  assert.equal(r.json.agent.clientId, 'personal-agent');
+  assert.equal(r.json.gateway.aud, 'https://ai-gateway.invalid');
   assert.equal(r.json.workspaceId, 'default');
-  assert.equal(r.json.steps, 7);
 });
 
-test('run: seven steps behave as written in mock', async () => {
-  const r = await call(mk(), 'POST', '/api/run');
-  assert.equal(r.status, 200);
-  assert.equal(r.json.ok, true);
-  assert.equal(r.json.source, 'mock');
-  assert.equal(r.json.downstream.delegatedStatus, 200);
-  assert.equal(r.json.downstream.inboundStatus, 401);
-  assert.equal(r.json.delta.actAdded, true);
-  assert.equal(r.json.leak, false);
+test('write -> hitl_required with identifier and JSON-RPC error; approve; replay -> permit', async () => {
+  const app = mk();
+  const first = (await call(app, 'POST', '/api/write', {})).json;
+  assert.equal(first.ok, true);
+  assert.equal(first.outcome, 'hitl_required');
+  assert.equal(first.decision.result, 'DENY');
+  assert.equal(first.rpcError.error.code, -32001);
+  assert.equal(first.rpcError.error.data.identifier, first.identifier);
+  assert.ok((await call(app, 'POST', '/api/approve', { identifier: 'nope' })).status, 404);
+  assert.equal((await call(app, 'POST', '/api/approve', { identifier: first.identifier })).status, 200);
+  const permit = (await call(app, 'POST', '/api/write', { identifierHeader: first.identifier })).json;
+  assert.equal(permit.outcome, 'permit');
+  assert.equal(permit.mcp.status, 200);
+  assert.equal(permit.obo.claims.act.sub, 'personal-agent');
+  // single use
+  const again = (await call(app, 'POST', '/api/write', { identifierHeader: first.identifier })).json;
+  assert.equal(again.outcome, 'hitl_required');
+});
+
+test('deny path: a refused CIBA never permits the replay', async () => {
+  const app = mk();
+  const first = (await call(app, 'POST', '/api/write', {})).json;
+  await call(app, 'POST', '/api/deny', { identifier: first.identifier });
+  const replay = (await call(app, 'POST', '/api/write', { identifierHeader: first.identifier })).json;
+  assert.equal(replay.outcome, 'hitl_required');
 });
 
 test('decode returns claims for a mock token and refuses junk', async () => {
   const app = mk();
-  const run = (await call(app, 'POST', '/api/run')).json;
-  const ok = await call(app, 'POST', '/api/decode', { token: run.delegated.token });
+  const run = (await call(app, 'POST', '/api/write', {})).json;
+  const ok = await call(app, 'POST', '/api/decode', { token: run.obo.token });
   assert.equal(ok.status, 200);
   assert.equal(ok.json.claims.act.sub, 'personal-agent');
   assert.equal((await call(app, 'POST', '/api/decode', { token: 'junk' })).status, 400);
 });
 
-test('revoke then run: step 2 refused', async () => {
+test('reset clears approvals: a previously approved identifier denies again', async () => {
   const app = mk();
-  await call(app, 'POST', '/api/revoke');
-  const r = await call(app, 'POST', '/api/run');
-  assert.equal(r.json.ok, false);
-  assert.equal(r.json.failedStep, 2);
+  const run = (await call(app, 'POST', '/api/write', {})).json;
+  await call(app, 'POST', '/api/approve', { identifier: run.identifier });
+  await call(app, 'POST', '/api/reset', {});
+  const replay = (await call(app, 'POST', '/api/write', { identifierHeader: run.identifier })).json;
+  assert.equal(replay.outcome, 'hitl_required');
 });
 
 test('rule 19: default mock, real 409 with the how-to, switch back works, body shape enforced', async () => {
@@ -79,6 +98,6 @@ test('rule 19: default mock, real 409 with the how-to, switch back works, body s
 });
 
 test('cross-origin write is refused', async () => {
-  const r = await call(mk(), 'POST', '/api/run', {}, { origin: 'http://evil.invalid' });
+  const r = await call(mk(), 'POST', '/api/write', {}, { origin: 'http://evil.invalid' });
   assert.equal(r.status, 403);
 });

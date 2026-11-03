@@ -7,19 +7,19 @@ import { fileURLToPath } from 'node:url';
 
 const script = fileURLToPath(new URL('./doctor.mjs', import.meta.url));
 const free = async () => {
-  for (let p = 7561; p <= 7569; p++) { const ok = await new Promise((r) => { const s = net.createServer(); s.once('error', () => r(false)); s.listen(p, '127.0.0.1', () => s.close(() => r(true))); }); if (ok) return p; }
-  throw new Error('no free port in 7561-7569');
+  for (let p = 7581; p <= 7589; p++) { const ok = await new Promise((r) => { const s = net.createServer(); s.once('error', () => r(false)); s.listen(p, '127.0.0.1', () => s.close(() => r(true))); }); if (ok) return p; }
+  throw new Error('no free port in 7581-7589');
 };
 const run = (port) => spawnSync(process.execPath, [script], { env: { ...process.env, PORT: String(port) }, encoding: 'utf8', timeout: 120000 });
 
 test('doctor passes on a free port and names the http cycle, the diagrams and the mode', async () => {
   const r = run(await free());
   assert.equal(r.status, 0, r.stdout + r.stderr);
-  for (const id of ['http-cycle', 'obo-run', 'mode', 'netguard', 'port-free']) assert.match(r.stdout, new RegExp(`PASS  ${id}:`));
+  for (const id of ['http-cycle', 'write-cycle', 'steps', 'mode', 'netguard', 'port-free']) assert.match(r.stdout, new RegExp(`PASS  ${id}:`));
   assert.match(r.stdout, /7\/7/);
 });
 
-test('doctor fails (exit 1) when the port is outside 7560-4999', () => {
+test('doctor fails (exit 1) when the port is outside 7580-4999', () => {
   const r = run(5000);
   assert.equal(r.status, 1);
   assert.match(r.stdout, /FAIL  port-range/);

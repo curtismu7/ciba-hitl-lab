@@ -1,11 +1,28 @@
 {
   "steps": [
-    { "id": "1", "title": "You are signed in" },
-    { "id": "2", "title": "Agent gets its own identity" },
-    { "id": "3", "title": "Token exchange (RFC 8693)" },
-    { "id": "4", "title": "Delegated token: what changed" },
-    { "id": "5", "title": "Downstream accepts the delegated token" },
-    { "id": "6", "title": "Downstream refuses your own token" },
-    { "id": "7", "title": "No token reached the model" }
+    { "id": "1", "title": "User initiates login" },
+    { "id": "2", "title": "Authorize request" },
+    { "id": "3", "title": "User authenticates" },
+    { "id": "4", "title": "User token" },
+    { "id": "5", "title": "Agent authenticates" },
+    { "id": "6", "title": "Agent token" },
+    { "id": "7", "title": "Token exchange: actor + user token" },
+    { "id": "8", "title": "Write request" },
+    { "id": "9", "title": "Write tool call" },
+    { "id": "10", "title": "Policy decision request" },
+    { "id": "11", "title": "403 with identifier" },
+    { "id": "12", "title": "JSON-RPC 2.0 error with identifier" },
+    { "id": "13", "title": "Prompt for CIBA acceptance" },
+    { "id": "14", "title": "Accept / Yes" },
+    { "id": "15", "title": "Replay tool call, header has identifier" },
+    { "id": "16", "title": "Policy decision request" },
+    { "id": "17", "title": "Permit" },
+    { "id": "18", "title": "Tool request with OBO token" },
+    { "id": "19", "title": "MCP Server executes the write" },
+    { "id": "20", "title": "Resource Server result returns to MCP Server" },
+    { "id": "21", "title": "Response inspected at Authorize" },
+    { "id": "22", "title": "Authorized response reaches the Gateway" },
+    { "id": "23", "title": "Gateway returns the result to the Agent" },
+    { "id": "24", "title": "Agent shows the result in the Application" }
   ]
 }

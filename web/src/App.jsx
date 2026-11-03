@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { getCatalog, getInfo, requestModeSwitch, resetServer, runObo, revokeAgent } from "./lib/api.js";
+import { getCatalog, getInfo, requestModeSwitch, resetServer, runWrite, approveCiba, denyCiba } from "./lib/api.js";
 import ModeToggle from "./components/ModeToggle.jsx";
+import FlowTab from "./tabs/FlowTab.jsx";
 import RunTab from "./tabs/RunTab.jsx";
 
-export const TABS = [["run", "Run"], ["wire", "Wire"]];
-export const FALLBACK_BANNER = "MOCK mode. SIMULATED: in-process mock issuer, mock exchanger and mock downstream. No tenant, no outbound network.";
+export const TABS = [["flow", "Flow"], ["run", "Live run"]];
+export const FALLBACK_BANNER = "MOCK mode. SIMULATED: in-process mock IAM, mock Authorize policy, mock CIBA, mock gateway and mock MCP/RS. No tenant, no outbound network.";
 const read = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, v); } catch { /* not remembered */ } };
-const tabFromHash = () => { const id = window.location.hash.replace(/^#\/?/, "").split("?")[0]; return TABS.some(([t]) => t === id) ? id : "run"; };
+const tabFromHash = () => { const id = window.location.hash.replace(/^#\/?/, "").split("?")[0]; return TABS.some(([t]) => t === id) ? id : "flow"; };
 const typing = (t) => !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
 
 export default function App() {
@@ -15,8 +16,8 @@ export default function App() {
   const [info, setInfo] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [tab, setTab] = useState(tabFromHash);
-  const [theme, setTheme] = useState(() => (["light", "dark"].includes(read("obol.theme", "")) ? read("obol.theme", "") : "system"));
-  const [present, setPresent] = useState(() => read("obol.present", "0") === "1");
+  const [theme, setTheme] = useState(() => (["light", "dark"].includes(read("ciba.theme", "")) ? read("ciba.theme", "") : "system"));
+  const [present, setPresent] = useState(() => read("ciba.present", "0") === "1");
   const [run, setRun] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -33,22 +34,27 @@ export default function App() {
   useEffect(() => {
     const on = (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey || typing(e.target)) return;
-      if (e.key === "p" || e.key === "P") setPresent((v) => { write("obol.present", v ? "0" : "1"); return !v; });
-      else if (e.key === "Escape") setPresent((v) => { if (v) write("obol.present", "0"); return false; });
+      if (e.key === "p" || e.key === "P") setPresent((v) => { write("ciba.present", v ? "0" : "1"); return !v; });
+      else if (e.key === "Escape") setPresent((v) => { if (v) write("ciba.present", "0"); return false; });
     };
     window.addEventListener("keydown", on);
     return () => window.removeEventListener("keydown", on);
   }, []);
 
-  const onRun = useCallback(async () => {
+  const onWrite = useCallback(async (identifierHeader) => {
     setBusy(true); setError(null);
     try {
-      const r = await runObo();
+      const r = await runWrite(identifierHeader || undefined);
       setRun(r);
-      setAnnounce(r.ok ? `Run passed: downstream ${r.downstream.delegatedStatus} for the delegated token, ${r.downstream.inboundStatus} for your own.` : `Run refused at step ${r.failedStep}.`);
+      setAnnounce(r.outcome === "permit" ? "Permitted: the CIBA approval was verified and the tool ran."
+        : r.outcome === "hitl_required" ? "Denied with an identifier: approve as the human, then replay."
+        : `Result: ${r.outcome}.`);
     } catch (e) { setError(e.message); }
     setBusy(false);
   }, []);
+  const onApprove = useCallback(async (id) => { setBusy(true); setError(null); try { await approveCiba(id); setAnnounce("Approved. Replay the write with the identifier."); } catch (e) { setError(e.message); } setBusy(false); }, []);
+  const onDeny = useCallback(async (id) => { setBusy(true); setError(null); try { await denyCiba(id); setAnnounce("Refused. A replay with this identifier denies again."); } catch (e) { setError(e.message); } setBusy(false); }, []);
+  const onReset = useCallback(async () => { await resetServer(); setRun(null); setAnnounce("Reset."); }, []);
 
   const onMode = useCallback(async (next) => {
     try {
@@ -60,11 +66,6 @@ export default function App() {
     } catch (e) { setAnnounce(e.message); }
   }, []);
 
-  const onRevoke = useCallback(async () => {
-    await revokeAgent();
-    setAnnounce("Agent client revoked. Run again to see the refusal at step 2.");
-  }, []);
-
   const banner = info?.banner ?? FALLBACK_BANNER;
 
   if (loadError || !catalog) {
@@ -73,7 +74,7 @@ export default function App() {
         <a className="skip" href="#main">Skip to content</a>
         <header><p className="banner">{FALLBACK_BANNER}</p></header>
         <main className="page" id="main" tabIndex={-1}>
-          {loadError ? <p className="alert" role="alert">Could not reach the lab server: {loadError}</p> : <p className="muted" role="status">Loading the delegation lab...</p>}
+          {loadError ? <p className="alert" role="alert">Could not reach the lab server: {loadError}</p> : <p className="muted" role="status">Loading the lab...</p>}
         </main>
       </>
     );
@@ -85,12 +86,11 @@ export default function App() {
       <header>
         <p className="banner" data-testid="banner">{banner}</p>
         <div className="head">
-          <h1 className="head__title">OBO Delegation Inspector LAB</h1>
+          <h1 className="head__title"><span className="head__mark">CIBA</span>CIBA HITL Lab</h1>
           <div className="head__tools">
             <ModeToggle info={info} onSelect={onMode} />
             <button type="button" className="btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>Theme</button>
-            <button type="button" className="btn" aria-pressed={present} onClick={() => setPresent((v) => { write("obol.present", v ? "0" : "1"); return !v; })}>Present</button>
-            <button type="button" className="btn" onClick={async () => { await resetServer(); setRun(null); setAnnounce("Reset."); }}>Reset</button>
+            <button type="button" className="btn" aria-pressed={present} onClick={() => setPresent((v) => { write("ciba.present", v ? "0" : "1"); return !v; })}>Present</button>
           </div>
         </div>
         <nav aria-label="Tabs" className="tabs">
@@ -98,27 +98,12 @@ export default function App() {
         </nav>
       </header>
       <main className="page" id="main" tabIndex={-1}>
-        {tab === "run"
-          ? <RunTab catalog={catalog} run={run} busy={busy} error={error} onRun={onRun} onRevoke={onRevoke} source={info?.source} />
-          : <WireTab run={run} />}
+        {tab === "flow"
+          ? <FlowTab catalog={catalog} />
+          : <RunTab run={run} busy={busy} error={error} onWrite={onWrite} onApprove={onApprove} onDeny={onDeny} onReset={onReset} source={info?.source} />}
       </main>
-      <footer><p className="muted small">Delegation, not impersonation: sub stays the person, act names the agent, aud and scope narrow. Tokens are one input to enforcement — the act claim is what the downstream checks.</p></footer>
+      <footer><p className="muted small">One login, one token exchange, one approval. The OBO token keeps the full scope set; per-tool narrowing happens in the Authorize policy, and a write only runs after a human - verified by Authorize, never by the agent.</p></footer>
       <div aria-live="polite" className="visually-hidden">{announce}</div>
     </>
-  );
-}
-
-function WireTab({ run }) {
-  if (!run) return <p className="muted" role="status">Run once, then this tab shows every request/response shape.</p>;
-  return (
-    <section aria-label="Wire" className="stack">
-      <h3>Token shapes (decoded)</h3>
-      {[["Inbound (your token)", run.inbound?.claims], ["Actor (agent client credentials)", run.actor?.claims], ["Delegated (the exchange result)", run.delegated?.claims]].map(([label, claims]) => (
-        <div key={label} className="card">
-          <h4>{label}</h4>
-          <pre className="wire" data-testid="wire-json">{JSON.stringify(claims, null, 2)}</pre>
-        </div>
-      ))}
-    </section>
   );
 }
