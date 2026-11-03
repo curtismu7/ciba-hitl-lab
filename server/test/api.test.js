@@ -102,3 +102,31 @@ test('cross-origin write is refused', async () => {
   const r = await call(mk(), 'POST', '/api/write', {}, { origin: 'http://evil.invalid' });
   assert.equal(r.status, 403);
 });
+
+test('LAB_ALLOWED_HOSTS: a listed domain passes the Host check, an unlisted one is refused', async () => {
+  process.env.LAB_ALLOWED_HOSTS = 'local.ping-devops.com';
+  try {
+    const r = await call(mk(), 'GET', '/api/health', undefined, { host: 'local.ping-devops.com' });
+    assert.equal(r.status, 200);
+  } finally { delete process.env.LAB_ALLOWED_HOSTS; }
+});
+
+test('LAB_ALLOWED_HOSTS: the Host header is honoured (raw http, fetch strips it)', async () => {
+  process.env.LAB_ALLOWED_HOSTS = 'local.ping-devops.com';
+  const { createServer } = await import('node:http');
+  const server = createServer(mk());
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  try {
+    const get = (host) => new Promise((resolve) => {
+      import('node:http').then(({ request }) => {
+        const req = request({ host: '127.0.0.1', port, path: '/api/health', headers: { host } }, (res) => {
+          let b = ''; res.on('data', (d) => (b += d)); res.on('end', () => resolve(res.statusCode));
+        });
+        req.on('error', () => resolve(0)); req.end();
+      });
+    });
+    assert.equal(await get('local.ping-devops.com'), 200);
+    assert.equal(await get('evil.example'), 403);
+  } finally { server.close(); delete process.env.LAB_ALLOWED_HOSTS; }
+});
