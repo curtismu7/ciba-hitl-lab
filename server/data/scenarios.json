@@ -1,0 +1,11 @@
+{
+  "steps": [
+    { "id": "1", "title": "You are signed in" },
+    { "id": "2", "title": "Agent gets its own identity" },
+    { "id": "3", "title": "Token exchange (RFC 8693)" },
+    { "id": "4", "title": "Delegated token: what changed" },
+    { "id": "5", "title": "Downstream accepts the delegated token" },
+    { "id": "6", "title": "Downstream refuses your own token" },
+    { "id": "7", "title": "No token reached the model" }
+  ]
+}

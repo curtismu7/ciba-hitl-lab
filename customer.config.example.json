@@ -1,0 +1,4 @@
+{
+  "_readme": "Copy to customer.config.json (git-ignored) to brand the lab. Only these three cast values are read; everything else is ignored. agentId and host are lowercase letters, digits and dashes; host becomes <host>.example. Overrides the default values.",
+  "cast": { "brand": "Fabrikam Bank", "agentId": "personal-agent", "personName": "Alex Person", "host": "fabrikam" }
+}
