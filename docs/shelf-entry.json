@@ -5,12 +5,19 @@
       "name": "CIBA HITL Lab",
       "catalogId": "C1",
       "kind": "Demo",
-      "description": "Twenty-four steps from scope to tool with a human in the loop: one login, one token exchange, an OBO token that keeps the full scope set; a write is denied with a CIBA identifier, the gateway rewrites the 403 into a JSON-RPC 2.0 error, the human approves, the agent replays, Authorize verifies the approval and permits. Mock engine or your own PingOne tenant (Mock/Real toggle).",
+      "description": "Twenty-four steps from scope to tool with a human in the loop: one login, one token exchange, an OBO token that keeps the full scope set; a write is denied with a CIBA identifier, the gateway rewrites the 403 into a JSON-RPC 2.0 error, the human approves, the agent replays, Authorize verifies…",
       "url": "http://localhost:7580",
       "healthPath": "/api/health",
       "composeFile": "ciba-hitl-lab/docker-compose.yml",
       "composeOverlays": [],
-      "tags": ["ciba", "hitl", "token-exchange", "authorization-policy", "json-rpc", "simulated"],
+      "tags": [
+        "ciba",
+        "hitl",
+        "token-exchange",
+        "authorization-policy",
+        "json-rpc",
+        "simulated"
+      ],
       "notes": "Host-run: ./scripts/run.sh (port 7580). Mock: no tenant, no credentials. Real: PINGONE_* + CIBA_LAB_* in ~/Development/.env (owner-set). Docker: HOST_PORT=7580 docker compose up --build -d (published on 127.0.0.1 only). composeFile is relative to the demo root."
     }
   ]
