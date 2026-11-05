@@ -12,6 +12,7 @@ import { buildDiagram } from './diagramData.js';
 import { createMode, MODES } from './mode.js';
 import { realRun } from './realPingOne.js';
 import { workspaceId } from './workspace.js';
+import { shelfInfo } from './shelfLink.js';
 
 const WEB_DIST = process.env.WEB_DIST || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web/dist');
 const bad = (res, message, status = 400) => res.status(status).json({ error: status === 404 ? 'not_found' : 'bad_request', message });
@@ -94,6 +95,7 @@ export function createApp({ health = createHealth(), mode = createMode(), flow =
   if (fs.existsSync(WEB_DIST)) app.use(express.static(WEB_DIST));
   app.get('/favicon.ico', (_req, res) => { res.set('Content-Type', 'image/svg+xml'); res.set('Cache-Control', 'public, max-age=86400'); res.send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" rx="3" fill="%23b5122f"/><path d="M4 9h5M8 5l3 4-3 4" stroke="white" stroke-width="2" fill="none"/></svg>'); });
   app.use('/api', api);
+  app.get('/api/shelf', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json(shelfInfo()); }); // the header "Shelf" button
   app.use((_req, res) => res.status(404).json({ error: 'not_found' }));
   return app;
 }
