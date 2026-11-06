@@ -177,3 +177,5 @@ form.stack button[type="submit"] { justify-self: start; margin-top: 4px; }
 .react-flow__edge-textbg { fill: var(--surface); stroke: var(--border); }
 .react-flow__edge-text { fill: var(--text); }
 .react-flow__attribution { display: none; }
+.shell-theme { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text); }
+.shell-theme select { min-height: 32px; padding: 4px 8px; }

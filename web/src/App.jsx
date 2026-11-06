@@ -17,7 +17,7 @@ export default function App() {
   const [info, setInfo] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [tab, setTab] = useState(tabFromHash);
-  const [theme, setTheme] = useState(() => (["light", "dark"].includes(read("ciba.theme", "")) ? read("ciba.theme", "") : "system"));
+  const [theme, setTheme] = useState(() => (["light", "dark"].includes(read("ciba.theme", "")) ? read("ciba.theme", "") : "auto"));
   const [present, setPresent] = useState(() => read("ciba.present", "0") === "1");
   const [run, setRun] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -30,7 +30,7 @@ export default function App() {
   }, []);
   useEffect(() => { loadAll().catch((e) => setLoadError(e.message)); }, [loadAll]);
   useEffect(() => { const on = () => setTab(tabFromHash()); window.addEventListener("hashchange", on); return () => window.removeEventListener("hashchange", on); }, []);
-  useEffect(() => { if (theme === "system") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme; }, [theme]);
+  useEffect(() => { if (theme === "auto") { try { localStorage.removeItem("ciba.theme"); } catch { /* not remembered */ } delete document.documentElement.dataset.theme; } else { write("ciba.theme", theme); document.documentElement.dataset.theme = theme; } }, [theme]);
   useEffect(() => { if (present) document.documentElement.dataset.present = "1"; else delete document.documentElement.dataset.present; }, [present]);
   useEffect(() => {
     const on = (e) => {
@@ -91,7 +91,13 @@ export default function App() {
           <div className="head__tools">
             <ShelfLink />
             <ModeToggle info={info} onSelect={onMode} />
-            <button type="button" className="btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>Theme</button>
+            <label className="shell-theme">Theme
+              <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+                <option value="auto">Auto</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
             <button type="button" className="btn" aria-pressed={present} onClick={() => setPresent((v) => { write("ciba.present", v ? "0" : "1"); return !v; })}>Present</button>
           </div>
         </div>
