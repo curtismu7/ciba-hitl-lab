@@ -5,6 +5,7 @@ name: ciba-hitl-lab
 
 services:
   ciba-hitl-lab:
+    restart: unless-stopped
     build: .
     ports:
       - "127.0.0.1:${HOST_PORT:-7580}:7580"
