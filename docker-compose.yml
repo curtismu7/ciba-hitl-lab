@@ -13,7 +13,7 @@ services:
       SHELF_URL: ${SHELF_URL:-http://127.0.0.1:4400}
       PORT: "7580"
       CIBA_BIND: 0.0.0.0
-      LAB_ALLOWED_HOSTS: ${LAB_ALLOWED_HOSTS:-ciba-hitl-lab.local.ping-devops.com,local.ping-devops.com}
+      LAB_ALLOWED_HOSTS: ${LAB_ALLOWED_HOSTS:-ciba-hitl-lab.local.ping-devops.com}
     env_file:
       - path: ${STANDALONE_ENV:-/Users/cmuir/Development/.env}
         required: false
