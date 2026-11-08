@@ -131,6 +131,17 @@ test('LAB_ALLOWED_HOSTS: the Host header is honoured (raw http, fetch strips it)
   } finally { server.close(); delete process.env.LAB_ALLOWED_HOSTS; }
 });
 
+test('GET /api/shelf answers with the configured SHELF_URL (no web build needed) and is GET only', async () => {
+  const prev = process.env.SHELF_URL;
+  process.env.SHELF_URL = 'https://shelf.example:8443/';
+  try {
+    const r = await call(mk(), 'GET', '/api/shelf');
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.json, { shelfUrl: 'https://shelf.example:8443' });
+    assert.notEqual((await call(mk(), 'POST', '/api/shelf', {})).status, 200);
+  } finally { if (prev === undefined) delete process.env.SHELF_URL; else process.env.SHELF_URL = prev; }
+});
+
 test('behind the lab-proxy: a write is accepted only with the proxy\'s forwarded origin AND an allowed Host', async () => {
   const { createServer, request } = await import('node:http');
   const PROXY = 'ciba-hitl-lab.local.ping-devops.com';
