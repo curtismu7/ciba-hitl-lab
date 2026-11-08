@@ -10,7 +10,7 @@ services:
     ports:
       - "127.0.0.1:${HOST_PORT:-7580}:7580"
     environment:
-      SHELF_URL: ${SHELF_URL:-}
+      SHELF_URL: ${SHELF_URL:-http://127.0.0.1:4400}
       PORT: "7580"
       CIBA_BIND: 0.0.0.0
       LAB_ALLOWED_HOSTS: ${LAB_ALLOWED_HOSTS:-ciba-hitl-lab.local.ping-devops.com,local.ping-devops.com}
