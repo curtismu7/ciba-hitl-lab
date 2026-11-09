@@ -143,7 +143,8 @@ test('README follows the README standard: title ends in LAB, plain Tier and Repo
   assert.ok(at.every((i) => i >= 0), at.join());
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'sections are in the standard order');
   assert.match(r, /lsof -iTCP:7580 -sTCP:LISTEN -n -P/);
-  assert.ok(!/ping-devops|cmuir|curtismu/i.test(r));
+  // The Repo: line names the real repo (family drift check); no other line may name an internal host or person.
+  assert.ok(!/ping-devops|cmuir|curtismu/i.test(r.split('\n').filter((l) => !/^Repo: https:\/\/github\.com\/curtismu7\/ciba-hitl-lab-LAB$/.test(l)).join('\n')));
 });
 
 test('app CSS follows the CSS standard and the shared stylesheet loads first', () => {
