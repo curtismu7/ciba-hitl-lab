@@ -1,7 +1,7 @@
 # CIBA HITL LAB
 
 Tier: Demo
-Repo: local first; GitHub repo, catalog id and shelf entry need owner approval
+Repo: https://github.com/curtismu7/ciba-hitl-lab-LAB
 Catalog: C1 (provisional, owner to confirm)
 Ports: 7580-7589 (default 7580)
 
