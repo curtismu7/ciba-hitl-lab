@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ShelfLink from "./components/ShelfLink.jsx";
+// Opened from Customer Agent LAB (UC-LEARN14 routes here): strip + header Back only; no scenario or vertical is preselected.
+import ReturnLink from "./return-link/ReturnLink.jsx";
 import { getCatalog, getInfo, requestModeSwitch, resetServer, runWrite, approveCiba, denyCiba } from "./lib/api.js";
 import ModeToggle from "./components/ModeToggle.jsx";
 import FlowTab from "./tabs/FlowTab.jsx";
@@ -86,9 +88,11 @@ export default function App() {
       <a className="skip" href="#main">Skip to content</a>
       <header>
         <p className="banner" data-testid="banner">{banner}</p>
+        <ReturnLink app="ciba-hitl-lab" />
         <div className="head">
           <h1 className="head__title"><span className="head__mark">LAB</span>CIBA HITL Lab</h1>
           <div className="head__tools">
+            <ReturnLink app="ciba-hitl-lab" variant="header" />
             <ShelfLink />
             <ModeToggle info={info} onSelect={onMode} />
             <label className="shell-theme">Theme
