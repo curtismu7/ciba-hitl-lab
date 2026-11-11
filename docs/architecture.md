@@ -9,7 +9,7 @@ web (React/Vite, built to web/dist, served by the server)
           ├── realPingOne.js  Real mode: live client credentials + token exchange (owner-configured)
           ├── app.js          /api/write, /api/approve, /api/deny, /api/decode, /api/mode, /api/catalog
           ├── safety.js       loopback bind, Host check, same-origin writes, host/key scanners
-          ├── netguard.js     blocks all non-loopback outbound (Mock); self-test at boot
+          ├── netguard.js     blocks all non-loopback outbound except the Real-mode allowlist (empty in Mock); self-test at boot
           ├── doctor.js       preflight checks shared by /api/health and npm run doctor
           └── mode.js         Mock/Real at runtime (rule 19); Real refused with the how-to when unconfigured
 ```

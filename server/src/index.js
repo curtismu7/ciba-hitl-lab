@@ -1,9 +1,11 @@
-import { installNetguard } from './netguard.js';
+import { installNetguard, outboundAllowlist } from './netguard.js';
 import { createApp } from './app.js';
 import { allPassed, runChecks } from './doctor.js';
 import { assertBindAllowed, bindHost, resolvePort } from './safety.js';
 
-installNetguard(); // before anything else can open a socket
+// The outbound allowlist is exactly what Real mode calls (the PingOne auth hosts) when Real is configured
+// from the shared settings file, and empty otherwise: Mock mode stays provably offline.
+installNetguard({ outboundAllow: outboundAllowlist() }); // before anything else can open a socket
 
 const checks = await runChecks();
 if (!allPassed(checks)) {

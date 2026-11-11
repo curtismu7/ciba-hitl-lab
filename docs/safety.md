@@ -2,7 +2,7 @@
 
 - Loopback bind only unless `CIBA_BIND` is set on purpose. Docker publishes `127.0.0.1:` only.
 - Host header must be a loopback name (DNS-rebinding defence); writes must be same-origin.
-- Zero outbound calls in Mock mode: the netguard blocks fetch, socket, DNS and UDP to non-loopback hosts and self-tests at startup. Real mode makes exactly the configured PingOne calls.
+- The netguard blocks fetch, socket, DNS and UDP to every non-loopback host EXCEPT the outbound allowlist, and self-tests at startup. With Real unconfigured the allowlist is empty: zero outbound, provable. With Real configured (PINGONE_* + CIBA_LAB_* in the shared settings file) the allowlist is exactly the PingOne auth hosts Real mode calls, and nothing else.
 - Every host in shipped text is reserved (`.invalid` / `.example` / `example.com`); the doctor checks this on every run.
 - No key-looking strings and no literal JWTs in shipped text; scanKeys enforces it. Tokens are minted by the mock IAM at run time.
 - No tenant, no credentials, no real identifiers. The Worker secret in Real mode never leaves the env and is never returned.
