@@ -28,6 +28,8 @@ vi.mock("../lib/api.js", () => ({
 }));
 import App from "../App.jsx";
 
+afterEach(cleanup);
+
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 const NOTE = { name: "Opened from Customer Agent LAB" };
@@ -50,6 +52,15 @@ describe("return link", () => {
     expect(screen.getByTestId("banner").nextElementSibling).toBe(note);
     expect(document.querySelector(".head__tools > button.return-link--header")).not.toBeNull();
     expect(screen.getAllByRole("button", { name: /Back to Customer Agent LAB/ })).toHaveLength(2);
+  });
+
+  it("?from=ai-demo-standalone: banner first, strip right below, header Back in the tools", async () => {
+    window.history.replaceState(null, "", "/?from=ai-demo-standalone&uc=UC-LEARN14");
+    render(<App />);
+    const note = await screen.findByRole("note", { name: "Opened from AI Demo Standalone" });
+    expect(note.textContent).toContain("UC-LEARN14");
+    expect(screen.getByTestId("banner").nextElementSibling).toBe(note);
+    expect(screen.getAllByRole("button", { name: /Back to AI Demo Standalone/ })).toHaveLength(2);
   });
 
   it("no from, an unknown from or a bad id: no strip, no button", async () => {
