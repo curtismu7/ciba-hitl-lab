@@ -70,13 +70,13 @@ test("live run: write -> hitl_required with the JSON-RPC rewrite; approve -> rep
   expect(screen.getByTestId("mcp")).toHaveTextContent("updated");
 });
 
-test("rule 19: the toggle renders both buttons; Real disabled with how-to when unconfigured", async () => {
+test("rule 19: the mode select renders; Real disabled with how-to when unconfigured", async () => {
   render(<App />);
   await screen.findByTestId("banner");
-  const real = screen.getByTestId("mode-real");
+  const real = screen.getByTestId("mode-select").querySelector('option[value="real"]');
   expect(real).toBeDisabled();
   expect(real.getAttribute("title")).toMatch(/PINGONE/);
-  expect(screen.getByTestId("mode-mock").getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByTestId("mode-select")).toHaveValue("mock");
 });
 
 test("mode switch reloads data and the run", async () => {
@@ -85,9 +85,9 @@ test("mode switch reloads data and the run", async () => {
   getInfo.mockResolvedValue({ source: "mock", realAvailable: true, banner: "B" });
   render(<App />);
   await screen.findByTestId("banner");
-  await waitFor(() => expect(screen.getByTestId("mode-real")).not.toBeDisabled());
+  await waitFor(() => expect(screen.getByTestId("mode-select").querySelector('option[value="real"]')).not.toBeDisabled());
   requestModeSwitch.mockResolvedValueOnce({ source: "real", realAvailable: true, banner: "REAL B" });
-  await user.click(screen.getByTestId("mode-real"));
+  await user.selectOptions(screen.getByTestId("mode-select"), "real");
   await waitFor(() => expect(requestModeSwitch).toHaveBeenCalledWith("real"));
   await waitFor(() => expect(screen.getByTestId("banner")).toHaveTextContent("REAL B"));
 });

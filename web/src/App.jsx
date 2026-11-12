@@ -3,7 +3,7 @@ import ShelfLink from "./components/ShelfLink.jsx";
 // Opened from Customer Agent LAB (UC-LEARN14 routes here): strip + header Back only; no scenario or vertical is preselected.
 import ReturnLink from "./return-link/ReturnLink.jsx";
 import { getCatalog, getInfo, requestModeSwitch, resetServer, runWrite, approveCiba, denyCiba } from "./lib/api.js";
-import ModeToggle from "./components/ModeToggle.jsx";
+import TopMenu from "./top-menu/TopMenu";
 import FlowTab from "./tabs/FlowTab.jsx";
 import RunTab from "./tabs/RunTab.jsx";
 
@@ -93,16 +93,16 @@ export default function App() {
           <h1 className="head__title"><span className="head__mark">LAB</span>CIBA HITL Lab</h1>
           <div className="head__tools">
             <ReturnLink app="ciba-hitl-lab" variant="header" />
-            <ShelfLink />
-            <ModeToggle info={info} onSelect={onMode} />
-            <label className="shell-theme">Theme
-              <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-                <option value="auto">Auto</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </label>
-            <button type="button" className="btn" aria-pressed={present} onClick={() => setPresent((v) => { write("ciba.present", v ? "0" : "1"); return !v; })}>Present</button>
+            <TopMenu
+              mode={{ value: info?.source === "real" ? "real" : "mock", onChange: onMode, realAvailable: info ? info.realAvailable : null, realHint: info?.realReason || undefined }}
+              theme={{ value: theme, onChange: setTheme }}
+              present={{ active: present, onToggle: () => setPresent((v) => { write("ciba.present", v ? "0" : "1"); return !v; }) }}
+              help={{ href: "https://github.com/curtismu7/ciba-hitl-lab#readme" }}
+              version={info?.version || null}
+              onReset={onReset}
+            >
+              <ShelfLink />
+            </TopMenu>
           </div>
         </div>
         <nav aria-label="Tabs" className="tabs">

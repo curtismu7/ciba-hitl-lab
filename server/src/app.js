@@ -38,7 +38,7 @@ export function createApp({ health = createHealth(), mode = createMode(), flow =
   });
   api.use('/health', health.router);
 
-  api.get('/info', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...mode.info(), banner: BANNER(mode.source()), epoch: flow.state.runs.length }); });
+  api.get('/info', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...mode.info(), banner: BANNER(mode.source()), epoch: flow.state.runs.length, version: (() => { try { return JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version || null; } catch { return null; } })() }); });
   // Rule 19: POST /api/mode with exactly {"source": "mock"|"real"}. Real unconfigured -> 409 with the how-to.
   api.post('/mode', (req, res) => {
     const b = req.body;
